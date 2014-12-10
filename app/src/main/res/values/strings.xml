@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+
+    <!--
+         Used in Action Bar, and in AndroidManifest to tell the device the name of this app.
+         It's to keep this short, so your launcher icon isn't displayed with "The greatest Wea"
+         or something similar.
+    -->
+    <string name="app_name">EarthQuakeMonitor</string>
+
+    <!--
+         By convention, "action" denotes that this String will be used as the label for an Action,
+         typically from the action bar.  The ActionBar is limited real estate, so shorter is better.
+    -->
+    <string name="action_settings">Settings</string>
+    <string name="action_map">Map Location</string>
+    <string name="action_share">Share</string>
+    <string name="title_activity_detail">Details</string>
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Label for the location preference [CHAR LIMIT=30] -->
+    <string name="pref_location_label">Location</string>
+
+    <!-- Key name for storing location in SharedPreferences [CHAR LIMIT=NONE] -->
+    <string name="pref_location_key" translatable="false">location</string>
+
+    <!-- Default postal code for location preference [CHAR LIMIT=NONE] -->
+    <string name="pref_location_default" translatable="false">94043</string>
+
+    <!-- Strings related to Notification preference -->
+    <string name="pref_last_sync">last_sync</string>
+
+    <!-- Strings related to Notification Enabled preference -->
+    <string name="pref_enable_notifications_key" translatable="false">enable_notifications</string>
+    <string name="pref_enable_notifications_label">Earth Quake Notifications</string>
+    <string name="pref_enable_notifications_true">Enabled</string>
+    <string name="pref_enable_notifications_false">Not Enabled</string>
+    <string name="pref_enable_notifications_default" translatable="false">true</string>
+
+    <!-- Strings for formatting weather-related data -->
+
+
+    <!-- Label for the minimum significant level preference [CHAR LIMIT=30] -->
+    <string name="pref_feed_label">Data Feed Level</string>
+
+    <!-- Label for high significant option in significant level preference [CHAR LIMIT=25] -->
+    <string name="pref_feed_label_sig">Significant</string>
+
+      <!-- Label for medium  significant option in significant level preference [CHAR LIMIT=25] -->
+    <string name="pref_feed_label_4.5">4.5M+</string>
+
+    <!-- Label for low  significant option in significant level preference [CHAR LIMIT=25] -->
+    <string name="pref_feed_label_all">All</string>
+
+    <!-- Key name for feed level preference in SharedPreferences [CHAR LIMIT=NONE] -->
+    <string name="pref_feed_key" translatable="false">feed</string>
+
+    <!-- Value in SharedPreferences for 4.5M+ feed level option [CHAR LIMIT=NONE] -->
+    <string name="pref_feed_sig" translatable="false">sig</string>
+
+    <!-- Value in SharedPreferences for medium significant level option [CHAR LIMIT=NONE] -->
+    <string name="pref_feed_4.5" translatable="false">4.5m</string>
+
+
+    <!-- Value in SharedPreferences for low significant level option [CHAR LIMIT=NONE] -->
+    <string name="pref_feed_all" translatable="false">all</string>
+
+
+    <!-- Label for the minimum significant level preference [CHAR LIMIT=30] -->
+    <string name="pref_range_label">History Range</string>
+
+    <!-- Label for high significant option in significant level preference [CHAR LIMIT=25] -->
+    <string name="pref_range_label_hour">Hour</string>
+
+    <!-- Label for medium  significant option in significant level preference [CHAR LIMIT=25] -->
+    <string name="pref_range_label_day">Day</string>
+
+    <!-- Label for low  significant option in significant level preference [CHAR LIMIT=25] -->
+    <string name="pref_range_label_week">Week</string>
+
+
+    <!-- Label for low  significant option in significant level preference [CHAR LIMIT=25] -->
+    <string name="pref_range_label_month">Month</string>
+
+    <!-- Key name for feed level preference in SharedPreferences [CHAR LIMIT=NONE] -->
+    <string name="pref_range_key" translatable="false">range</string>
+
+    <!-- Value in SharedPreferences for 4.5M+ feed level option [CHAR LIMIT=NONE] -->
+    <string name="pref_range_hour" translatable="false">hour</string>
+
+    <!-- Value in SharedPreferences for medium significant level option [CHAR LIMIT=NONE] -->
+    <string name="pref_range_day" translatable="false">day</string>
+
+    <!-- Value in SharedPreferences for low significant level option [CHAR LIMIT=NONE] -->
+    <string name="pref_range_week" translatable="false">week</string>
+
+    <!-- Value in SharedPreferences for low significant level option [CHAR LIMIT=NONE] -->
+    <string name="pref_range_month" translatable="false">month</string>
+
+    <!-- Label for the minimum significant level preference [CHAR LIMIT=30] -->
+    <string name="pref_sig_label">Significance</string>
+
+    <!-- Label for high significant option in significant level preference [CHAR LIMIT=25] -->
+    <string name="pref_sig_label_high">High</string>
+
+    <!-- Label for medium  significant option in significant level preference [CHAR LIMIT=25] -->
+    <string name="pref_sig_label_medium">Medium</string>
+
+    <!-- Label for low  significant option in significant level preference [CHAR LIMIT=25] -->
+    <string name="pref_sig_label_low">Low</string>
+
+    <!-- Key name for feed level preference in SharedPreferences [CHAR LIMIT=NONE] -->
+    <string name="pref_sig_key" translatable="false">significance</string>
+
+    <!-- Value in SharedPreferences for 4.5M+ feed level option [CHAR LIMIT=NONE] -->
+    <string name="pref_sig_high" translatable="false">high</string>
+
+    <!-- Value in SharedPreferences for medium significant level option [CHAR LIMIT=NONE] -->
+    <string name="pref_sig_medium" translatable="false">medium</string>
+
+    <!-- Value in SharedPreferences for low significant level option [CHAR LIMIT=NONE] -->
+    <string name="pref_sig_low" translatable="false">low</string>
+
+    <!-- Language-specific constants -->
+    <string name="today">Today</string>
+
+    <!-- For labelling tomorrow's forecast [CHAR LIMIT=15] -->
+    <string name="tomorrow">Tomorrow</string>
+
+    <!-- Date format [CHAR LIMIT=NONE] -->
+    <string name="format_full_friendly_date"><xliff:g id="month">%1$s</xliff:g>, <xliff:g id="day">%2$s</xliff:g></string>
+
+    <!-- SyncAdapter related -->
+    <string name="sync_account_type">earthquakemonitor.example.com</string>
+
+    <string name="content_authority">com.niroshpg.android.earthquakemonitor</string>
+
+    <!-- Notification Format -->
+    <string name="format_notification">        Earth Quake Alert: <xliff:g id="place">%1$s</xliff:g> Mag: <xliff:g id="mag">%2$s</xliff:g> Depth: <xliff:g id="depth">%3$s</xliff:g></string>
+
+    <!-- Strings related to Notification preference -->
+    <string name="pref_last_notification">last_notification</string>
+
+    <string name="title_activity_maps">Map</string>
+    <string name="title_activity_main">MainActivity</string>
+
+
+</resources>

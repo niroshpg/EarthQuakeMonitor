@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- UNSELECTED TAB STATE -->
+    <item android:state_selected="false" android:state_pressed="false">
+        <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+            <!-- Bottom indicator color for the UNSELECTED tab state -->
+            <item >
+                <shape >
+                    <stroke android:color="@color/earthquake_blue"  android:width="48dp" />
+                </shape>
+            </item>
+        </layer-list>
+    </item>
+    <!-- SELECTED TAB STATE -->
+    <item android:state_selected="true" android:state_pressed="false">
+        <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+            <!-- Tab background color for the SELECTED tab state -->
+
+            <!-- Bottom indicator color for the SELECTED tab state -->
+            <item>
+                <shape >
+                    <stroke android:color="@color/earthquake_dark_blue"   android:width="48dp"/>
+                </shape>
+            </item>
+        </layer-list>
+    </item>
+</selector>

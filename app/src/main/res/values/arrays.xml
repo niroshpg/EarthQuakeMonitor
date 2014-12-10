@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="pref_feed_options">
+        <item>@string/pref_feed_label_sig</item>
+        <item>@string/pref_feed_label_4.5</item>
+        <item>@string/pref_feed_label_all</item>
+    </string-array>
+
+    <string-array name="pref_feed_values">
+        <item>@string/pref_feed_sig</item>
+        <item>@string/pref_feed_4.5</item>
+        <item>@string/pref_feed_all</item>
+    </string-array>
+
+    <string-array name="pref_range_options">
+        <item>@string/pref_range_label_hour</item>
+        <item>@string/pref_range_label_day</item>
+        <item>@string/pref_range_label_week</item>
+        <item>@string/pref_range_label_month</item>
+    </string-array>
+
+    <string-array name="pref_range_values">
+        <item>@string/pref_range_hour</item>
+        <item>@string/pref_range_day</item>
+        <item>@string/pref_range_week</item>
+        <item>@string/pref_range_month</item>
+    </string-array>
+
+    <string-array name="pref_sig_options">
+        <item>@string/pref_sig_label_high</item>
+        <item>@string/pref_sig_label_medium</item>
+        <item>@string/pref_sig_label_low</item>
+    </string-array>
+
+    <string-array name="pref_sig_values">
+        <item>@string/pref_sig_high</item>
+        <item>@string/pref_sig_medium</item>
+        <item>@string/pref_sig_low</item>
+    </string-array>
+</resources>

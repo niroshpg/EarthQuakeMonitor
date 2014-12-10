@@ -1,0 +1,42 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="@style/Theme.AppCompat.Light.DarkActionBar">
+        <item name="actionBarStyle">@style/ActionBar.Solid.EarthQuakeMonitor</item>
+        <item name="actionBarTabStyle">@style/EarthQuakeMonitor.ActionBar.TabView</item>
+        <item name="actionBarTabBarStyle">@style/EarthQuakeMonitor.ActionBar.TabBar</item>
+        <item name="actionBarTabTextStyle">@style/EarthQuakeMonitor.ActionBar.TabText</item>
+    </style>
+
+    <style name="EarthQuakeTheme" parent="AppTheme">
+        <item name="actionBarStyle">@style/ActionBar.Solid.EarthQuakeMonitor.NoTitle</item>
+    </style>
+
+    <style name="ActionBar.Solid.EarthQuakeMonitor" parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
+        <item name="background">@color/earthquake_blue</item>
+    </style>
+
+    <style name="ActionBar.Solid.EarthQuakeMonitor.NoTitle" parent="@style/ActionBar.Solid.EarthQuakeMonitor">
+        <item name="displayOptions">useLogo|showHome</item>
+        <item name="logo">@drawable/ic_logo</item>
+    </style>
+
+    <!-- Style for earth quake list view -->
+    <style name="QuakesListStyle">
+        <!-- Here it's a stub.  In screens of sufficient width, this style includes modifications
+        for two-pane layout -->
+    </style>
+
+    <style name="EarthQuakeMonitor.ActionBar.TabView" parent="Widget.AppCompat.Light.ActionBar.TabView">
+        <item name="android:background">@drawable/tab_bar_background</item>
+    </style>
+    <style name="EarthQuakeMonitor.ActionBar.TabBar" parent="Widget.AppCompat.Light.ActionBar.TabBar">
+        <!-- This is an ORANGE background -->
+        <item name="android:background">@color/earthquake_dark_blue</item>
+    </style>
+
+    <style name="EarthQuakeMonitor.ActionBar.TabText" parent="Widget.AppCompat.Light.ActionBar.TabText">
+        <!-- This is a WHITE tab color -->
+        <item name="android:textColor">@color/selector_tab_text</item>
+    </style>
+</resources>

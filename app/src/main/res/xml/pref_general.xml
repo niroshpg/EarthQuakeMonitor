@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <ListPreference
+        android:title="@string/pref_range_label"
+        android:key="@string/pref_range_key"
+        android:defaultValue="@string/pref_range_week"
+        android:entryValues="@array/pref_range_values"
+        android:entries="@array/pref_range_options" />
+
+    <ListPreference
+        android:title="@string/pref_sig_label"
+        android:key="@string/pref_sig_key"
+        android:defaultValue="@string/pref_sig_high"
+        android:entryValues="@array/pref_sig_values"
+        android:entries="@array/pref_sig_options" />
+
+    <ListPreference
+        android:title="@string/pref_feed_label"
+        android:key="@string/pref_feed_key"
+        android:defaultValue="@string/pref_feed_sig"
+        android:entryValues="@array/pref_feed_values"
+        android:entries="@array/pref_feed_options" />
+
+    <CheckBoxPreference
+        android:title="@string/pref_enable_notifications_label"
+        android:key="@string/pref_enable_notifications_key"
+        android:summaryOff="@string/pref_enable_notifications_false"
+        android:summaryOn="@string/pref_enable_notifications_true"
+        android:defaultValue="@string/pref_enable_notifications_default" />
+
+</PreferenceScreen>

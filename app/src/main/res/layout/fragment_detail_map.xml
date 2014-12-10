@@ -1,0 +1,97 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:custom="http://schemas.android.com/apk/res-auto"
+        android:gravity="center_vertical"
+        android:layout_gravity="left"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+    android:paddingLeft="16dp"
+    android:paddingTop="16dp"
+    android:paddingRight="16dp"
+    android:paddingBottom="4dp">
+
+        <!-- Header: Day, Date -->
+
+        <LinearLayout
+            android:gravity="center_horizontal"
+            android:layout_height="0dp"
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:layout_weight="0.75">
+
+            <LinearLayout
+                android:gravity="left"
+                android:layout_height="match_parent"
+                android:layout_width="0dp"
+                android:orientation="vertical"
+                android:layout_weight="5">
+
+                <TextView
+                    android:fontFamily="sans-serif-condensed"
+                    android:id="@+id/detail_day_textview"
+                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                    android:textColor="@color/black"
+                    android:textSize="24sp"
+                    android:layout_gravity="left"
+                    android:layout_weight="1"
+                    android:gravity="center_vertical" />
+
+                <TextView
+                    android:fontFamily="sans-serif-condensed"
+                    android:id="@+id/detail_date_textview"
+                    android:layout_height="0dp"
+                    android:layout_width="0dp"
+                    android:textColor="@color/grey_700"
+                    android:textSize="16sp"
+                    android:text="Details"
+                    android:layout_weight="0"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:gravity="center_horizontal"
+                android:layout_gravity="right"
+                android:layout_height="match_parent"
+                android:layout_width="0dp"
+                android:orientation="vertical"
+                android:layout_weight="1">
+
+                <com.niroshpg.android.earthquakemonitor.EQIconView
+                    android:id="@+id/detail_icon"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                   />
+
+            </LinearLayout>
+        </LinearLayout>
+
+
+
+        <!-- Main content: high, low, art, weather state -->
+
+        <!-- Humidity, wind, pressure -->
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="4dp"
+            android:layout_weight="6">
+            <FrameLayout
+                android:id="@+id/map_container"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="8" />
+            <TextView
+                android:id="@+id/detail_place_textview"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:textColor="@color/grey_700"
+                android:layout_weight="1"
+                android:textSize="18sp"
+                android:textAppearance="?android:textAppearanceLarge"
+                android:text="place" />
+        </LinearLayout>
+
+</LinearLayout>
+

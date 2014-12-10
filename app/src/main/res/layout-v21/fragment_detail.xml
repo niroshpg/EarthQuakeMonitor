@@ -1,0 +1,160 @@
+<!-- Master layout. -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    >
+
+    <LinearLayout
+        android:gravity="center_vertical"
+        android:layout_gravity="left"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Header: Day, Date -->
+
+
+        <!-- Main content: high, low, art, weather state -->
+
+        <!-- Humidity, wind, pressure -->
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="8">
+
+                <TextView
+                    android:fontFamily="sans-serif-condensed"
+                    android:id="@+id/detail_day_textview"
+                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                    android:textColor="@color/black"
+                    android:textSize="24sp"
+                    android:text="Today"
+                    android:layout_gravity="left" />
+
+                <TextView
+                    android:fontFamily="sans-serif-condensed"
+                    android:id="@+id/detail_date_textview"
+                    android:layout_height="0dp"
+                    android:layout_width="0dp"
+                    android:textColor="@color/grey_700"
+                    android:textSize="16sp"
+                    android:text="Details"
+
+                    android:visibility="invisible" />
+            </LinearLayout>
+
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+
+                <com.niroshpg.android.earthquakemonitor.EQIconView
+                    android:id="@+id/detail_icon"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    custom:alert="green"
+                    custom:sig="300"
+                    android:src="@drawable/ic_clear" />
+            </FrameLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="6">
+
+            <FrameLayout
+                android:id="@+id/map_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/detail_place_textview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/grey_700"
+                android:text="Sydney Australia"
+                android:layout_weight="0.5"
+                android:textSize="18sp"
+                android:gravity="center_vertical" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="4">
+
+            <TextView
+                android:id="@+id/detail_depth_textview"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:textSize="18sp"
+                android:text="Depth: 123 km" />
+
+            <TextView
+                android:id="@+id/detail_mag_textview"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:textSize="18sp"
+                android:text="Magnitude: 4.5M" />
+
+            <TextView
+                    android:id="@+id/detail_alert_textview"
+                    android:layout_height="wrap_content"
+                android:textSize="18sp"
+                    android:layout_width="match_parent"
+                    android:textAppearance="?android:textAppearanceLarge" />
+
+            <TextView
+                android:id="@+id/detail_sig_textview"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:layout_width="match_parent"
+                android:textAppearance="?android:textAppearanceLarge" />
+
+            <TextView
+                    android:id="@+id/detail_updated_textview"
+                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                    android:textSize="18sp"
+                    android:textAppearance="?android:textAppearanceLarge" />
+
+            <TextView
+                android:id="@+id/detail_latlng_textview"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:layout_width="match_parent"
+                android:textAppearance="?android:textAppearanceLarge" />
+
+            <TextView
+                    android:id="@+id/detail_url_textview"
+                    android:layout_height="wrap_content"
+                android:textSize="18sp"
+                    android:layout_width="match_parent"
+                    android:textAppearance="?android:textAppearanceLarge" />
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>

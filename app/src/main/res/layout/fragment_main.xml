@@ -1,0 +1,13 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/fragment_main"
+    tools:context="com.example.android.earthquakemonitor.app.ListViewFragment">
+    <ListView
+        style="@style/QuakesListStyle"
+        android:id="@+id/list_view_quakes"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:divider="@null" />
+</FrameLayout>

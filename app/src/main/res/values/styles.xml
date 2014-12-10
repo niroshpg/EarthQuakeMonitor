@@ -1,0 +1,30 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="@style/Theme.AppCompat.Light.DarkActionBar">
+        <item name="actionBarStyle">@style/EarthQuakeMonitor.ActionBar</item>
+    </style>
+
+    <style name="EarthQuakeTheme" parent="AppTheme">
+        <item name="actionBarStyle">@style/EarthQuakeMonitor.ActionBar.NoTitle</item>
+    </style>
+
+    <style name="EarthQuakeMonitor.ActionBar" parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
+        <item name="background">@color/earthquake_blue</item>
+    </style>
+
+    <style name="EarthQuakeMonitor.ActionBar.NoTitle" parent="@style/EarthQuakeMonitor.ActionBar">
+        <item name="displayOptions">useLogo|showHome</item>
+        <item name="logo">@drawable/ic_logo</item>
+        <item name="background">@color/earthquake_blue</item>
+    </style>
+
+    <!-- Style for earth quake list view -->
+    <style name="EarthQuakeMonitorListStyle">
+        <!-- Here it's a stub.  In screens of sufficient width, this style includes modifications
+        for two-pane layout -->
+    </style>
+
+
+
+</resources>
