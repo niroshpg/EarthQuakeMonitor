@@ -17,7 +17,6 @@ public class EarthQuakeDataProvider extends ContentProvider {
     private static final int QUAKE = 400;
     private static final int QUAKE_WITH_ID = 401;
 
-
     private static final String sQuakeIdSelection =
             EarthQuakeDataContract.QuakesEntry.TABLE_NAME+
                     "." + EarthQuakeDataContract.QuakesEntry._ID + " = ? ";
@@ -34,7 +33,12 @@ public class EarthQuakeDataProvider extends ContentProvider {
 
         // For each type of URI you want to add, create a corresponding code.
         matcher.addURI(authority, EarthQuakeDataContract.PATH_QUAKE, QUAKE);
-        matcher.addURI(authority, EarthQuakeDataContract.PATH_QUAKE + "/*", QUAKE_WITH_ID);
+        /**
+         * Here matching only id as number not as string. Note that start date is
+         * added as query parameter rather than append to path and will be matched with above
+         * base uri
+         */
+        matcher.addURI(authority, EarthQuakeDataContract.PATH_QUAKE + "/#", QUAKE_WITH_ID);
 
         return matcher;
     }
@@ -96,7 +100,7 @@ public class EarthQuakeDataProvider extends ContentProvider {
         switch (match) {
 
             case QUAKE_WITH_ID:
-                return EarthQuakeDataContract.QuakesEntry.CONTENT_TYPE;
+                return EarthQuakeDataContract.QuakesEntry.CONTENT_ITEM_TYPE;
             case QUAKE:
                 return EarthQuakeDataContract.QuakesEntry.CONTENT_TYPE;
             default:
