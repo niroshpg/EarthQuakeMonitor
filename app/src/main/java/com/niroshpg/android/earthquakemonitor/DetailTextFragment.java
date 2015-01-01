@@ -48,6 +48,10 @@ public class DetailTextFragment extends Fragment implements LoaderManager.Loader
 
     private String mEqAlert;
 
+    private String mSharedText;
+
+    private String mUrl;
+
     private String mDateStr;
 
     private String mIdStr;
@@ -168,7 +172,9 @@ public class DetailTextFragment extends Fragment implements LoaderManager.Loader
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
         shareIntent.setType("text/plain");
-        shareIntent.putExtra(Intent.EXTRA_TEXT, mEqAlert + EARTHQUAKE_ALERT_SHARE_HASHTAG);
+        shareIntent.putExtra(Intent.EXTRA_SUBJECT, mEqAlert );
+        shareIntent.putExtra(Intent.EXTRA_TEXT, Html.fromHtml(mSharedText + EARTHQUAKE_ALERT_SHARE_HASHTAG) );
+
         return shareIntent;
     }
 
@@ -245,7 +251,15 @@ public class DetailTextFragment extends Fragment implements LoaderManager.Loader
             mUrlView.setMovementMethod(LinkMovementMethod.getInstance());
 
             // for the share intent
-            mEqAlert = String.format("%s - %s - %s/%s", dateText, place, mag, depth);
+            // subject of the shared content
+            mEqAlert = String.format("%s - %s - %sM/%skm", dateText, place, mag, depth);
+            // body of the shared content
+            mSharedText = "<p> Summary:  A earthquake of "+mag+" M magnitude and "+depth+" km deep occurred at "
+                    + place + " on " +dateText +"."
+                    +"<p> <a href=\"" + mUrl + "\"> See USGS Event for details "
+                    +"<p> ";
+            // url to of the event for sharing
+            mUrl = url;
         }
     }
 
