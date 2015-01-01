@@ -95,6 +95,11 @@ public class MapViewFragment extends SupportMapFragment implements MainActivity.
         return mInstance;
     }
 
+    public static void clearInstance()
+    {
+        mInstance = null;
+    }
+
 
     public void loadData()
     {
@@ -253,7 +258,9 @@ public class MapViewFragment extends SupportMapFragment implements MainActivity.
         switch (cursorLoader.getId()) {
 
             case QUAKES_LOADER:
-                mMap.clear();
+                if(mMap != null) {
+                    mMap.clear();
+                }
                 cursor.moveToFirst();
                for(int i=0; i < cursor.getCount();i++,cursor.moveToNext())
                {

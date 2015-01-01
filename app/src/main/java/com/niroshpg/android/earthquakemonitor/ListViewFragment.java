@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -21,6 +22,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.niroshpg.android.earthquakemonitor.data.EarthQuakeDataContract;
@@ -109,6 +111,11 @@ public class ListViewFragment extends Fragment implements LoaderManager.LoaderCa
         return mInstance;
     }
 
+    public static void clearInstance()
+    {
+        mInstance = null;
+    }
+
     public ListViewFragment() {
     }
 
@@ -137,7 +144,7 @@ public class ListViewFragment extends Fragment implements LoaderManager.LoaderCa
         mQuakesAdapter.setFragmentManager(getActivity().getSupportFragmentManager());
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-        Log.i(LOG_TAG,"onCreateView id=" +mInstance.getId());
+        Log.i(LOG_TAG,"onCreateView id=" +getNewInstance().getId());
         if (rootView.findViewById(R.id.map_fragment_container) != null) {
             // The detail container view will be present only in the large-screen layouts
             // (res/layout-sw600dp). If this view is present, then the activity should be
@@ -346,11 +353,18 @@ public class ListViewFragment extends Fragment implements LoaderManager.LoaderCa
     }
 
     private void clearMarkers(){
-        for(Fragment fr :getFragmentManager().getFragments())
-        {
-            if(fr instanceof MapViewFragment)
-            {
-               ((MapViewFragment)fr).getMap().clear();
+        FragmentManager fragmentManager = getFragmentManager();
+        if(fragmentManager != null ) {
+            List<Fragment> fragments =  fragmentManager.getFragments();
+            if(fragments != null && fragments.size() >0) {
+                for (Fragment fr : fragments) {
+                    if (fr != null && fr instanceof MapViewFragment) {
+                        GoogleMap googleMap = ((MapViewFragment) fr).getMap();
+                        if (googleMap != null) {
+                            googleMap.clear();
+                        }
+                    }
+                }
             }
         }
     }

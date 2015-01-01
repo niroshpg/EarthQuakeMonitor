@@ -50,6 +50,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        clearInstances();
 
         // Create the adapter that will return a fragment for each of the three primary sections
         // of the app.
@@ -91,6 +92,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                             .setIcon(mAppSectionsPagerAdapter.getPageIcon(i))
                             .setTabListener(this));
         }
+
+        EarthQuakeSyncAdapter.initializeSyncAdapter(this);
     }
 
     @Override
@@ -156,10 +159,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         }
     }
 
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        EarthQuakeSyncAdapter.syncImmediately(getApplicationContext());
+
+    public static void clearInstances()
+    {
+        MapViewFragment.clearInstance();
+        ListViewFragment.clearInstance();
     }
 
     /**
