@@ -53,7 +53,7 @@ public class EarthQuakeSyncAdapter extends AbstractThreadedSyncAdapter {
             "http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/";
 
 
-    // Interval at which to sync with the weather, in milliseconds.
+    // Interval at which to sync with the earthquake data from server, in seconds.
     // 60 seconds (1 minute) * 180 = 3 hours
     public static final int SYNC_INTERVAL = 60 * 180;
     public static final int SYNC_FLEXTIME = SYNC_INTERVAL/3;
@@ -434,7 +434,7 @@ public class EarthQuakeSyncAdapter extends AbstractThreadedSyncAdapter {
             // we can enable inexact timers in our periodic sync
             SyncRequest request = new SyncRequest.Builder().
                     syncPeriodic(syncInterval, flexTime).
-                    setSyncAdapter(account, authority).build();
+                    setSyncAdapter(account, authority).setExtras(new Bundle()).build();
             ContentResolver.requestSync(request);
         } else {
             ContentResolver.addPeriodicSync(account,
