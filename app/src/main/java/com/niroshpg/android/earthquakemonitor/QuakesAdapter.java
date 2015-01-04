@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.preference.PreferenceManager;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.CursorAdapter;
 import android.view.LayoutInflater;
@@ -20,8 +19,11 @@ import java.util.List;
 import java.util.TimeZone;
 
 /**
- * {@link QuakesAdapter} exposes a list of earth quake alerts
- * from a {@link android.database.Cursor} to a {@link android.widget.ListView}.
+ * QuakesAdapter
+ * - exposes a list of earth quake alerts from a Cursor to a ListView.
+ *
+ * @author niroshpg
+ * @since  06/10/2014
  */
 public class QuakesAdapter extends CursorAdapter {
 
@@ -64,25 +66,11 @@ public class QuakesAdapter extends CursorAdapter {
 
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
-        // Choose the layout type
-        int viewType = getItemViewType(cursor.getPosition());
-        int layoutId = -1;
-        switch (viewType) {
-            case VIEW_TYPE_TODAY: {
-                layoutId = R.layout.list_item_quakes_today;
-                break;
-            }
-            case VIEW_TYPE_FUTURE_DAY: {
-                layoutId = R.layout.list_item_quakes;
-                break;
-            }
-        }
-
-        View view = LayoutInflater.from(context).inflate(layoutId, parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.list_item_quakes, parent, false);
 
         ViewHolder viewHolder = new ViewHolder(view);
         view.setTag(viewHolder);
-        mapViewFragment = findMapViewFragment();
+       // mapViewFragment = findMapViewFragment();
         return view;
     }
 
@@ -153,32 +141,20 @@ public class QuakesAdapter extends CursorAdapter {
         }
     }
 
-    private MapViewFragment findMapViewFragment()
-    {
-        MapViewFragment mapViewFragment = null;
-        for(Fragment fr :fragmentManager.getFragments())
-        {
-            if(fr instanceof  MapViewFragment)
-            {
-                mapViewFragment = ((MapViewFragment)fr);
-            }
-        }
-        return mapViewFragment;
-    }
+//    private MapViewFragment findMapViewFragment()
+//    {
+//        MapViewFragment mapViewFragment = null;
+//        for(Fragment fr :fragmentManager.getFragments())
+//        {
+//            if(fr instanceof  MapViewFragment)
+//            {
+//                mapViewFragment = ((MapViewFragment)fr);
+//            }
+//        }
+//        return mapViewFragment;
+//    }
 
-    private void addMarker(MarkerOptions markerOptions)
-    {
-        if(mapViewFragment == null)
-        {
-            mapViewFragment = findMapViewFragment();
-        }
-        if(mapViewFragment != null)
-        {
-            mapViewFragment.addMarker(markerOptions.getPosition(),markerOptions.getTitle(),markerOptions.getSnippet());
-        }
-    }
-
-    public void setUseTodayLayout(boolean useTodayLayout) {
+    public void setUseSpecificLayout(boolean useTodayLayout) {
         mUseTodayLayout = useTodayLayout;
     }
 
@@ -194,10 +170,6 @@ public class QuakesAdapter extends CursorAdapter {
 
     public List<MarkerOptions> getMarkerOptionsList() {
         return markerOptionsList;
-    }
-
-    public FragmentManager getFragmentManager() {
-        return fragmentManager;
     }
 
     public void setFragmentManager(FragmentManager fragmentManager) {

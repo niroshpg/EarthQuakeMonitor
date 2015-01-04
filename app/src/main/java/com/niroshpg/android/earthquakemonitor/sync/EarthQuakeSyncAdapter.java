@@ -46,12 +46,18 @@ import java.util.List;
 import java.util.Vector;
 
 
-
+/**
+ * Sync Adapter for earthquake data
+ *
+ * @author niroshpg
+ * @since  06/10/2014
+ *
+ * reference: The sync adapter implementation from https://github.com/udacity/Sunshine
+ */
 public class EarthQuakeSyncAdapter extends AbstractThreadedSyncAdapter {
     public final String LOG_TAG = EarthQuakeSyncAdapter.class.getSimpleName();
     final String EQ_BASE_URL =
             "http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/";
-
 
     // Interval at which to sync with the earthquake data from server, in seconds.
     // 60 seconds (1 minute) * 180 = 3 hours
@@ -60,6 +66,9 @@ public class EarthQuakeSyncAdapter extends AbstractThreadedSyncAdapter {
     private static final long DAY_IN_MILLIS = 1000 * 60 * 60 * 24;
     private static final int EARTH_QUAKE_NOTIFICATION_ID = 3005;
 
+    /**
+     * projection for finding most significant event to be notified
+     */
     private static final String[] NOTIFY_QUAKES_PROJECTION = new String[] {
             QuakesEntry.COLUMN_PLACE,
             QuakesEntry.COLUMN_MAG,
@@ -74,18 +83,24 @@ public class EarthQuakeSyncAdapter extends AbstractThreadedSyncAdapter {
     private static final int INDEX_EQ_ALERT = 3;
     private static final int INDEX_EQ_SIG = 4;
 
+    /**
+     * constructor
+     * @param context
+     * @param autoInitialize
+     */
     public EarthQuakeSyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
     }
 
-    private void readEqData()
+    /**
+     * Read earthquake data from USGS geojson urls,
+     *
+     * http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_week.geojson
+     *
+     */
+    private void readEarthquakesData()
     {
-        //http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_week.geojson
-        Log.d(LOG_TAG, "Starting reading earth quake data");
-
         List<String> resultsStr = new ArrayList<String>();
-        // Getting the zipcode to send to the API
-        // String locationQuery = Utility.getPreferredLocation(getContext());
 
         // These two need to be declared outside the try/catch
         // so that they can be closed in the finally block.
@@ -95,20 +110,15 @@ public class EarthQuakeSyncAdapter extends AbstractThreadedSyncAdapter {
         // Will contain the raw JSON response as a string.
         String forecastJsonStr = null;
 
-        String format = "json";
-        String units = "metric";
         int numDays = getSelectedNumberOfDays();
 
         try {
-            // Construct the URL for the OpenWeatherMap query
-            // Possible parameters are avaiable at OWM's forecast API page, at
-            // http://openweathermap.org/API#forecast
-
+            // Construct the URL for the USGS geo json query
             Uri builtUri = Uri.parse(getURLBasedOnFeedSelection()).buildUpon().build();
 
             URL url = new URL(builtUri.toString());
 
-            // Create the request to OpenWeatherMap, and open the connection
+            // Create the request to USGS server, and open the connection
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
             urlConnection.connect();
@@ -137,7 +147,7 @@ public class EarthQuakeSyncAdapter extends AbstractThreadedSyncAdapter {
             forecastJsonStr = buffer.toString();
         } catch (IOException e) {
             Log.e(LOG_TAG, "Error ", e);
-            // If the code didn't successfully get the weather data, there's no point in attempting
+            // If the code didn't successfully get the earthquake events data, there's no point in attempting
             // to parse it.
             return ;
         } finally {
@@ -153,13 +163,9 @@ public class EarthQuakeSyncAdapter extends AbstractThreadedSyncAdapter {
             }
         }
 
-        // Now we have a String representing the complete forecast in JSON Format.
-        // Fortunately parsing is easy:  constructor takes the JSON string and converts it
-        // into an Object hierarchy for us.
+        // parse data from json string
 
         // These are the names of the JSON objects that need to be extracted.
-
-        // Location information
         final String USGS_FEATURES = "features";
         final String USGS_FEATURE_PROPERTIES = "properties";
         final String USGS_FEATURE_PROPERTIES_MAG = "mag";
@@ -177,7 +183,7 @@ public class EarthQuakeSyncAdapter extends AbstractThreadedSyncAdapter {
             JSONObject forecastJson = new JSONObject(forecastJsonStr);
             JSONArray featuresArray = forecastJson.getJSONArray(USGS_FEATURES);
 
-            // Insert the new weather information into the database
+            // Insert the new earthquakes information into the database
             Vector<ContentValues> cVVector = new Vector<ContentValues>(featuresArray.length());
 
             for(int i = 0; i < featuresArray.length(); i++) {
@@ -195,9 +201,7 @@ public class EarthQuakeSyncAdapter extends AbstractThreadedSyncAdapter {
                 String url;
 
                 JSONObject eqEvent = featuresArray.getJSONObject(i);
-
                 JSONObject eqProperties = eqEvent.getJSONObject(USGS_FEATURE_PROPERTIES);
-
                 mag = eqProperties.getDouble(USGS_FEATURE_PROPERTIES_MAG);
                 alert = eqProperties.getString(USGS_FEATURE_PROPERTIES_ALERT);
                 place = eqProperties.getString(USGS_FEATURE_PROPERTIES_PLACE);
@@ -206,10 +210,7 @@ public class EarthQuakeSyncAdapter extends AbstractThreadedSyncAdapter {
                 sig = eqProperties.getInt(USGS_FEATURE_PROPERTIES_SIG);
                 updated = eqProperties.getLong(USGS_FEATURE_PROPERTIES_UPDATED);
                 url = eqProperties.getString(USGS_FEATURE_PROPERTIES_URL);
-
-
                 JSONObject eqGeometry = eqEvent.getJSONObject(USGS_FEATURE_GOEMETRY);
-
                 JSONArray coordinatesArray = eqGeometry.getJSONArray(USGS_FEATURE_GOEMETRY_COORD);
                 longitude = coordinatesArray.getDouble(0);
                 latitude = coordinatesArray.getDouble(1);
@@ -235,9 +236,6 @@ public class EarthQuakeSyncAdapter extends AbstractThreadedSyncAdapter {
                 String resultsStrValue = "mag="+mag+", place="+place+", latitude="+latitude+", "+
                         "longitude="+longitude+", depth="+depth+", time="+ timeText;
                 resultsStr.add(resultsStrValue);
-
-                Log.d(LOG_TAG, "readEqData Event :" +resultsStrValue );
-
             }
             if ( cVVector.size() > 0 ) {
                 ContentValues[] cvArray = new ContentValues[cVVector.size()];
@@ -259,7 +257,7 @@ public class EarthQuakeSyncAdapter extends AbstractThreadedSyncAdapter {
 
                 notifyEarthQuake();
             }
-            Log.d(LOG_TAG, "readEqData Complete. " + cVVector.size() + " Inserted");
+            Log.d(LOG_TAG, "readEarthquakesData Complete. " + cVVector.size() + " Inserted");
 
         } catch (JSONException e) {
             Log.e(LOG_TAG, e.getMessage(), e);
@@ -267,37 +265,14 @@ public class EarthQuakeSyncAdapter extends AbstractThreadedSyncAdapter {
         }
     }
 
-    private int getSelectedNumberOfDays()
-    {
-        int numDays = 7;
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-
-        String historyRange = prefs.getString(getContext().getString(R.string.pref_range_key),
-                getContext().getString(R.string.pref_range_week));
-        if (historyRange.contains(getContext().getString(R.string.pref_range_hour))) {
-            numDays = 0;
-        }
-        else if (historyRange.contains(getContext().getString(R.string.pref_range_day))) {
-            numDays = 1;
-        }
-        else if (historyRange.contains(getContext().getString(R.string.pref_range_week))) {
-            numDays = 7;
-        }
-        else if (historyRange.contains(getContext().getString(R.string.pref_range_month))) {
-            numDays = 30;
-        }
-
-        return numDays;
-    }
-
-
-
     @Override
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
-        //     readWeatherData();
-        readEqData();
+        readEarthquakesData();
     }
 
+    /**
+     * notify most significant earthquake occurred for the past day
+     */
     private void notifyEarthQuake() {
         Context context = getContext();
         //checking the last update and notify if it' the first of the day
@@ -312,10 +287,6 @@ public class EarthQuakeSyncAdapter extends AbstractThreadedSyncAdapter {
             long lastSync = prefs.getLong(lastNotificationKey, 0);
 
             if (System.currentTimeMillis() - lastSync >= DAY_IN_MILLIS) {
-                // Last sync was more than 1 day ago, let's send a notification with the weather.
-                String locationQuery = Utility.getPreferredLocation(context);
-
-
                 // we'll query our contentProvider, as always
                 Cursor cursor = context.getContentResolver().query(QuakesEntry.CONTENT_URI, NOTIFY_QUAKES_PROJECTION, null, null, null);
 
@@ -329,22 +300,19 @@ public class EarthQuakeSyncAdapter extends AbstractThreadedSyncAdapter {
                     int iconId = Utility.getIconResourceForAlertCondition(alert,sig);
                     String title = context.getString(R.string.app_name);
 
-                    // Define the text of the forecast.
+                    // Define the text of the event.
                     String contentText = String.format(context.getString(R.string.format_notification),
                             place,
                             mag,
                             depth);
 
-                    // NotificationCompatBuilder is a very convenient way to build backward-compatible
-                    // notifications.  Just throw in some data.
                     NotificationCompat.Builder mBuilder =
                             new NotificationCompat.Builder(getContext())
                                     .setSmallIcon(iconId)
                                     .setContentTitle(title)
                                     .setContentText(contentText);
 
-                    // Make something interesting happen when the user clicks on the notification.
-                    // In this case, opening the app is sufficient.
+                    // open the application when user click the notification
                     Intent resultIntent = new Intent(context, MainActivity.class);
 
                     // The stack builder object will contain an artificial back stack for the
@@ -373,9 +341,39 @@ public class EarthQuakeSyncAdapter extends AbstractThreadedSyncAdapter {
                 }
             }
         }
-
     }
 
+    /**
+     * Helper retrieve the number of days to be saved selected by the user
+     * @return
+     */
+    private int getSelectedNumberOfDays()
+    {
+        int numDays = 7;
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+
+        String historyRange = prefs.getString(getContext().getString(R.string.pref_range_key),
+                getContext().getString(R.string.pref_range_week));
+        if (historyRange.contains(getContext().getString(R.string.pref_range_hour))) {
+            numDays = 0;
+        }
+        else if (historyRange.contains(getContext().getString(R.string.pref_range_day))) {
+            numDays = 1;
+        }
+        else if (historyRange.contains(getContext().getString(R.string.pref_range_week))) {
+            numDays = 7;
+        }
+        else if (historyRange.contains(getContext().getString(R.string.pref_range_month))) {
+            numDays = 30;
+        }
+
+        return numDays;
+    }
+
+    /**
+     * Helper method to generate the url based on the feed user preference
+     * @return
+     */
     private String getURLBasedOnFeedSelection()
     {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
@@ -402,7 +400,6 @@ public class EarthQuakeSyncAdapter extends AbstractThreadedSyncAdapter {
             else
                 RANGE_SELECT =  "week";
         }
-
 
         String SIGNIFICANT_SELECT ="significant";
 
@@ -495,6 +492,11 @@ public class EarthQuakeSyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
 
+    /**
+     * helper method to handle account created
+     * @param newAccount
+     * @param context
+     */
     private static void onAccountCreated(Account newAccount, Context context) {
         /*
          * Since we've created an account
@@ -512,6 +514,10 @@ public class EarthQuakeSyncAdapter extends AbstractThreadedSyncAdapter {
         syncImmediately(context);
     }
 
+    /**
+     * initialize the the sync adapter
+     * @param context
+     */
     public static void initializeSyncAdapter(Context context) {
         getSyncAccount(context);
     }

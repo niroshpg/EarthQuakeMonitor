@@ -6,6 +6,13 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
+/**
+ * Activity for processing details of a user selected earthquake event
+ *
+ * @author niroshpg
+ * @since  06/10/2014
+ */
+
 public class DetailActivity extends ActionBarActivity {
 
     public static final String DATE_KEY = "list_view_date";

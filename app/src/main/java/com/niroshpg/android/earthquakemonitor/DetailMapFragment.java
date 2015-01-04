@@ -10,8 +10,10 @@ import android.view.ViewGroup;
 
 /**
  * DetailMapFragment
- *
  * This fragment shows map in its view with some associated text fields
+ *
+ * @author niroshpg
+ * @since  06/10/2014
  */
 public class DetailMapFragment extends Fragment {
 

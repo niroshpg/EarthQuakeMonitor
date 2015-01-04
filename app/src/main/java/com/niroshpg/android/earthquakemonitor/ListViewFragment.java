@@ -24,10 +24,8 @@ import android.widget.ListView;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.niroshpg.android.earthquakemonitor.data.EarthQuakeDataContract;
 import com.niroshpg.android.earthquakemonitor.data.EarthQuakeDataContract.QuakesEntry;
-import com.niroshpg.android.earthquakemonitor.sync.EarthQuakeSyncAdapter;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -35,31 +33,61 @@ import org.joda.time.DateTimeZone;
 import java.util.List;
 
 /**
- * Encapsulates fetching the forecast and displaying it as a {@link android.widget.ListView} layout.
+ * retrieve earthquake events as list and display as ListView layout
+ *
+ * @author niroshpg
+ * @since  06/10/2014
  */
 public class ListViewFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     public static final String LOG_TAG = ListViewFragment.class.getSimpleName();
+    /**
+     * self static single instance
+     */
     private static ListViewFragment mInstance;
 
+    /**
+     * list adapter for to bind quakes to the view
+     */
     private QuakesAdapter mQuakesAdapter;
+
+    /**
+     * reference to hold the list view layout widget
+     */
     private ListView mListView;
+
+    /**
+     * save list position between life cycles
+     */
     private int mPosition = ListView.INVALID_POSITION;
-    private boolean mUseTodayLayout;
+
+    /**
+     * selection for specific layout for certain list items.
+     * Note: this is currently implemented as single layout for
+     * all list items.
+     */
+    private boolean mUseSpecificLayout;
+
+    /**
+     * indicate two panes mode in use (for tablet ui displaying multiple fragments)
+     */
     private boolean mTwoPane = false;
 
+    /**
+     * key for saving list position
+     */
     private static final String SELECTED_KEY = "selected_position";
 
+    /**
+     * identifier for the cursor loader
+     */
     private static final int QUAKES_LOADER = 0;
 
-    // For the forecast view we're showing only a small subset of the stored data.
+    // For the earthquake events list view, we're showing only a small subset of the stored data.
     // Specify the columns we need.
     public static final String[] QUAKES_COLUMNS = {
             // In this case the id needs to be fully qualified with a table name, since
-            // the content provider joins the location & weather tables in the background
+            // the content provider joins the location & quakes tables in the background
             // (both have an _id column)
-            // On the one hand, that's annoying.  On the other, you can search the weather table
-            // using the location set by the user, which is only in the Location table.
-            // So the convenience is worth it.
             QuakesEntry.TABLE_NAME + "." + QuakesEntry._ID,
             QuakesEntry.COLUMN_DATETEXT,
             QuakesEntry.COLUMN_SHORT_DESC,
@@ -103,6 +131,10 @@ public class ListViewFragment extends Fragment implements LoaderManager.LoaderCa
         public void onItemSelected(String date, Long id, LatLng latLng);
     }
 
+    /**
+     * return reference to self single instance
+     * @return
+     */
     public static ListViewFragment getNewInstance() {
         if (mInstance == null) {
             mInstance = new ListViewFragment();
@@ -111,11 +143,17 @@ public class ListViewFragment extends Fragment implements LoaderManager.LoaderCa
         return mInstance;
     }
 
+    /**
+     * clear self instance
+     */
     public static void clearInstance()
     {
         mInstance = null;
     }
 
+    /**
+     * constructor
+     */
     public ListViewFragment() {
     }
 
@@ -156,6 +194,9 @@ public class ListViewFragment extends Fragment implements LoaderManager.LoaderCa
             if (savedInstanceState == null) {
 
                 Cursor cursor = mQuakesAdapter.getCursor();
+                /**
+                 * if data is available dynamically load map and text fragments
+                 */
                 if (cursor != null && cursor.moveToFirst()) {
                     Bundle arguments = new Bundle();
                     arguments.putString(DetailActivity.DATE_KEY, cursor.getString(COL_QUAKE_DATE));
@@ -186,9 +227,15 @@ public class ListViewFragment extends Fragment implements LoaderManager.LoaderCa
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                /**
+                 * handle user click events for the list
+                 */
                 Cursor cursor = mQuakesAdapter.getCursor();
                 if (cursor != null && cursor.moveToPosition(position)) {
                     if(mTwoPane) {
+                        /**
+                         * if data is available dynamically load map and text fragments in two pane mode
+                         */
                         Bundle args = new Bundle();
                         args.putString(DetailActivity.DATE_KEY, cursor.getString(COL_QUAKE_DATE));
                         args.putString(DetailActivity.ID_KEY, String.valueOf(cursor.getLong(COL_QUAKE_ID)));
@@ -209,6 +256,9 @@ public class ListViewFragment extends Fragment implements LoaderManager.LoaderCa
                     }
                     else
                     {
+                        /**
+                         * if data is available invoke detail activity for the selected item
+                         */
                         Intent intent = new Intent(getActivity(), DetailActivity.class)
                                 .putExtra(DetailActivity.DATE_KEY, cursor.getString(COL_QUAKE_DATE))
                                 .putExtra(DetailActivity.ID_KEY,String.valueOf(cursor.getLong(COL_QUAKE_ID)));
@@ -225,12 +275,11 @@ public class ListViewFragment extends Fragment implements LoaderManager.LoaderCa
         // or magically appeared to take advantage of room, but data or place in the app was never
         // actually *lost*.
         if (savedInstanceState != null && savedInstanceState.containsKey(SELECTED_KEY)) {
-            // The listview probably hasn't even been populated yet.  Actually perform the
-            // swapout in onLoadFinished.
+            // The list view probably hasn't even been populated yet.  Actually perform the
+            // swap out in onLoadFinished.
             mPosition = savedInstanceState.getInt(SELECTED_KEY);
         }
-
-        mQuakesAdapter.setUseTodayLayout(mUseTodayLayout);
+        mQuakesAdapter.setUseSpecificLayout(mUseSpecificLayout);
 
         return rootView;
     }
@@ -239,35 +288,6 @@ public class ListViewFragment extends Fragment implements LoaderManager.LoaderCa
     public void onActivityCreated(Bundle savedInstanceState) {
         getLoaderManager().initLoader(QUAKES_LOADER, null, this);
         super.onActivityCreated(savedInstanceState);
-    }
-
-    private void updateWeather() {
-        EarthQuakeSyncAdapter.syncImmediately(getActivity());
-    }
-
-    private void openPreferredLocationInMap() {
-        // Using the URI scheme for showing a location found on a map.  This super-handy
-        // intent can is detailed in the "Common Intents" page of Android's developer site:
-        // http://developer.android.com/guide/components/intents-common.html#Maps
-
-        if (null != mQuakesAdapter) {
-            Cursor c = mQuakesAdapter.getCursor();
-            if (null != c) {
-                c.moveToPosition(0);
-                String posLat = c.getString(COL_QUAKE_LAT);
-                String posLong = c.getString(COL_QUAKE_LONG);
-                Uri geoLocation = Uri.parse("geo:" + posLat + "," + posLong);
-
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(geoLocation);
-
-                if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
-                    startActivity(intent);
-                } else {
-                    Log.d(LOG_TAG, "Couldn't call " + geoLocation.toString() + ", no receiving apps installed!");
-                }
-            }
-        }
     }
 
     @Override
@@ -292,9 +312,8 @@ public class ListViewFragment extends Fragment implements LoaderManager.LoaderCa
         // This is called when a new Loader needs to be created.  This
         // fragment only uses one loader, so we don't care about checking the id.
 
-        // To only show current and future dates, get the String representation for today,
-        // and filter the query to return weather only for dates after or including today.
-        // Only return data after today.
+        //use query to return only events more or equally significant than the user preferred significance level
+
         String startDate = EarthQuakeDataContract.getDbDateString(new DateTime(DateTime.now(), DateTimeZone.UTC));
         String sortOrder = "";
 
@@ -306,19 +325,15 @@ public class ListViewFragment extends Fragment implements LoaderManager.LoaderCa
         int sig = Utility.getSignificance(sigString);
 
         switch (id) {
-
-
             case QUAKES_LOADER:
                 mQuakesAdapter.getMarkerOptionsList().clear();
                 // Sort order:  Ascending, by date.
                 sortOrder = QuakesEntry.COLUMN_DATETEXT + " DESC";
-
                 Uri quakeWithStartDateUri = EarthQuakeDataContract.QuakesEntry.buildQuakeWithStartDate(
                         startDate);
-
                 // Now create and return a CursorLoader that will take care of
                 // creating a Cursor for the data being displayed.
-                String select = "sig > ?";
+                String select = "sig >= ?";
                 String [] selectArgs = new String[]{String.valueOf(sig)};
                 return new CursorLoader(
                         getActivity(),
@@ -328,12 +343,9 @@ public class ListViewFragment extends Fragment implements LoaderManager.LoaderCa
                         selectArgs,
                         sortOrder
                 );
-
             default:
                 return null;
-
         }
-
     }
 
     @Override
@@ -352,6 +364,9 @@ public class ListViewFragment extends Fragment implements LoaderManager.LoaderCa
         }
     }
 
+    /**
+     * after loading new events clear the old markers within the map
+     */
     private void clearMarkers(){
         FragmentManager fragmentManager = getFragmentManager();
         if(fragmentManager != null ) {
@@ -371,7 +386,6 @@ public class ListViewFragment extends Fragment implements LoaderManager.LoaderCa
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-
         switch (loader.getId()) {
             case QUAKES_LOADER:
                 mQuakesAdapter.getMarkerOptionsList().clear();
@@ -381,23 +395,17 @@ public class ListViewFragment extends Fragment implements LoaderManager.LoaderCa
         }
     }
 
-    public void setUseTodayLayout(boolean useTodayLayout) {
-        mUseTodayLayout = useTodayLayout;
+    public void setUseSpecificLayout(boolean useTodayLayout) {
+        mUseSpecificLayout = useTodayLayout;
 
         if (mQuakesAdapter != null) {
-            mQuakesAdapter.setUseTodayLayout(mUseTodayLayout);
+            mQuakesAdapter.setUseSpecificLayout(mUseSpecificLayout);
         }
     }
 
-    public List<MarkerOptions> getMarkerOptionsList()
-    {
-        if(mQuakesAdapter!= null)
-        {
-            mQuakesAdapter.getMarkerOptionsList();
-        }
-       return null;
-    }
-
+    /**
+     * restart the loader
+     */
     public void restartLoader()
     {
         if(isAdded())

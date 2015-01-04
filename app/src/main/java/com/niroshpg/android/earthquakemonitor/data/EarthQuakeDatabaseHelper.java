@@ -7,7 +7,12 @@ import android.database.sqlite.SQLiteOpenHelper;
 import com.niroshpg.android.earthquakemonitor.data.EarthQuakeDataContract.QuakesEntry;
 
 /**
- * Manages a local database for weather data.
+ * Manages a local SQLite database for storing earthquakes data.
+ *
+ * @author niroshpg
+ * @since  06/10/2014
+ *
+ * reference: The content provider implementation from https://github.com/udacity/Sunshine
  */
 public class EarthQuakeDatabaseHelper extends SQLiteOpenHelper {
 
@@ -23,14 +28,10 @@ public class EarthQuakeDatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         final String SQL_CREATE_QUAKE_TABLE = "CREATE TABLE " + QuakesEntry.TABLE_NAME + " (" +
-                // Why AutoIncrement here, and not above?
-                // Unique keys will be auto-generated in either case.  But for weather
-                // forecasting, it's reasonable to assume the user will want information
-                // for a certain date and all dates *following*, so the forecast data
-                // should be sorted accordingly.
+
                 QuakesEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
 
-                // the ID of the location entry associated with this weather data
+                // the ID of the location entry associated with this earthquake data
                 QuakesEntry.COLUMN_MAG + " REAL NOT NULL, " +
                 QuakesEntry.COLUMN_DATETEXT + " TEXT NOT NULL, " +
                 QuakesEntry.COLUMN_SHORT_DESC + " TEXT NOT NULL, " +
@@ -46,7 +47,7 @@ public class EarthQuakeDatabaseHelper extends SQLiteOpenHelper {
                 QuakesEntry.COLUMN_LONG + " REAL NOT NULL, " +
                 QuakesEntry.COLUMN_TZ + " REAL NOT NULL, " +
 
-                // To assure the application have just one weather entry per day
+                // To assure the application have just one earthquake entry per moment
                 // per location, it's created a UNIQUE constraint with REPLACE strategy
                 " UNIQUE (" + QuakesEntry.COLUMN_DATETEXT + ", " +
                 QuakesEntry.COLUMN_LAT  + ", "+ QuakesEntry.COLUMN_LONG +") ON CONFLICT REPLACE);";

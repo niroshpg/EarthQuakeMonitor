@@ -2,6 +2,7 @@ package com.niroshpg.android.earthquakemonitor;
 
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -26,6 +27,12 @@ import com.niroshpg.android.earthquakemonitor.data.EarthQuakeDataContract.Quakes
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
+/**
+ * Fragment to show the map within the main activity view
+ *
+ * @author niroshpg
+ * @since  06/10/2014
+ */
 public class MapViewFragment extends SupportMapFragment implements MainActivity.MarkerCallback,
        LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -69,19 +76,14 @@ public class MapViewFragment extends SupportMapFragment implements MainActivity.
     public static final int COL_QUAKE_SIG = 10;
 
     private static final int DEFAULT_MAP_ZOOM = 2;
-
     private static final int QUAKES_LOADER = 1;
 
     private static MapViewFragment mInstance ;
-    private static MapViewFragment mDetailInstance ;
     private SupportMapFragment mFragment;
-    private LatLng mLatLng = null;
     private String mTitle;
-    private String mSnippet;
     private GoogleMap mMap;
-
     private boolean isMarkersLoaded = false;
-    private  int mMapZoom = DEFAULT_MAP_ZOOM;
+    private int mMapZoom = DEFAULT_MAP_ZOOM;
     private static boolean enableCursorLoader  = false;
 
     public static MapViewFragment getNewInstance()
@@ -184,15 +186,10 @@ public class MapViewFragment extends SupportMapFragment implements MainActivity.
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
     private void setUpMap() {
-        if(mLatLng != null) {
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mLatLng, mMapZoom));
-            addMarker(mLatLng, mTitle, mSnippet);
-        }
         mMap.getUiSettings().setAllGesturesEnabled(true);
         mMap.getUiSettings().setCompassEnabled(true);
         mMap.setMyLocationEnabled(true);
     }
-
 
     public String getTitle() {
         return mTitle;
@@ -200,10 +197,6 @@ public class MapViewFragment extends SupportMapFragment implements MainActivity.
 
     public void setTitle(String mTitle) {
         this.mTitle = mTitle;
-    }
-
-    public void addMarker(LatLng aLatLng,String aTitle, String aSnippet)
-    {
     }
 
     @Override
@@ -230,7 +223,7 @@ public class MapViewFragment extends SupportMapFragment implements MainActivity.
                         startDate);
                 // Now create and return a CursorLoader that will take care of
                 // creating a Cursor for the data being displayed.
-                String select = "sig > ?";
+                String select = "sig >= ?";
                 String [] selectArgs = new String[]{String.valueOf(sig)};
                 return new CursorLoader(
                         getActivity(),
@@ -275,7 +268,10 @@ public class MapViewFragment extends SupportMapFragment implements MainActivity.
                        markerOptions.position(latLng);
                        markerOptions.title("Magnitude: " + String.valueOf(high) + " M") ;
                        markerOptions.snippet("Depth: " + String.valueOf(low) + "km") ;
-                       markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_marker));
+                       int resourceId = Utility.getMarkerResourceForSignificance(significance);
+                       String alert = cursor.getString(COL_QUAKE_ALERT);
+                       Bitmap bitmap = Utility.addAlertData(getActivity(),resourceId,alert);
+                       markerOptions.icon(BitmapDescriptorFactory.fromBitmap(bitmap));
                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, mMapZoom));
                        mMap.addMarker(markerOptions);
                    }
@@ -300,4 +296,6 @@ public class MapViewFragment extends SupportMapFragment implements MainActivity.
             getLoaderManager().restartLoader(QUAKES_LOADER, null, this);
         }
     }
+
+
 }

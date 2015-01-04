@@ -7,24 +7,38 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 
+/**
+ * Defines the content provider for the earthquakes database.
+ *
+ * @author niroshpg
+ * @since  06/10/2014
+ *
+ * reference: The content provider implementation from https://github.com/udacity/Sunshine
+ */
 public class EarthQuakeDataProvider extends ContentProvider {
 
     // The URI Matcher used by this content provider.
     private static final UriMatcher sUriMatcher = buildUriMatcher();
-    private EarthQuakeDatabaseHelper mOpenHelper;
 
+    // The reference to the helper instance which manage local database for the
+    // earthquake events from USGS server
+    private EarthQuakeDatabaseHelper mOpenHelper;
 
     private static final int QUAKE = 400;
     private static final int QUAKE_WITH_ID = 401;
 
+    /**
+     * selection for id
+     */
     private static final String sQuakeIdSelection =
             EarthQuakeDataContract.QuakesEntry.TABLE_NAME+
                     "." + EarthQuakeDataContract.QuakesEntry._ID + " = ? ";
 
+    /**
+     * The URI matcher
+     * @return
+     */
     private static UriMatcher buildUriMatcher() {
-        // I know what you're thinking.  Why create a UriMatcher when you can use regular
-        // expressions instead?  Because you're not crazy, that's why.
-
         // All paths added to the UriMatcher have a corresponding code to return when a match is
         // found.  The code passed into the constructor represents the code to return for the root
         // URI.  It's common to use NO_MATCH as the code for this case.
@@ -43,6 +57,7 @@ public class EarthQuakeDataProvider extends ContentProvider {
         return matcher;
     }
 
+
     @Override
     public boolean onCreate() {
         mOpenHelper = new EarthQuakeDatabaseHelper(getContext());
@@ -56,7 +71,6 @@ public class EarthQuakeDataProvider extends ContentProvider {
         // and query the database accordingly.
         Cursor retCursor;
         switch (sUriMatcher.match(uri)) {
-            // "quake"
             case QUAKE_WITH_ID: {
                 String id = EarthQuakeDataContract.QuakesEntry.getIdFromUri(uri);
 
@@ -93,7 +107,6 @@ public class EarthQuakeDataProvider extends ContentProvider {
 
     @Override
     public String getType(Uri uri) {
-
         // Use the Uri Matcher to determine what kind of URI this is.
         final int match = sUriMatcher.match(uri);
 

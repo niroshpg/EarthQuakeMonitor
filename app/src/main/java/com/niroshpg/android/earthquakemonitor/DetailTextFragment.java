@@ -28,7 +28,10 @@ import java.util.TimeZone;
 
 /**
  * DetailTextFragment
- * This contains view with some text details of earth quake event
+ * This contains view with some text details of earthquake event
+ *
+ * @author niroshpg
+ * @since  06/10/2014
  */
 public class DetailTextFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 

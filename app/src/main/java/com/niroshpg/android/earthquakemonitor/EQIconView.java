@@ -12,17 +12,28 @@ import android.widget.ImageView;
 
 /**
  * Custom image view showing significance and alert level based on the earth quake data received
+ *
+ * @author niroshpg
+ * @since  06/10/2014
  */
 public class EQIconView  extends ImageView {
     Paint mPaint = new Paint(0);
-    private Drawable mEQWaveImage;
     private int mSig;
     private String mAlert;
 
+    /**
+     * constructor
+     * @param context
+     */
     public EQIconView(Context context) {
         super(context);
     }
 
+    /**
+     * constructor
+     * @param context
+     * @param attrs
+     */
     public EQIconView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
@@ -35,10 +46,21 @@ public class EQIconView  extends ImageView {
         mAlert = a.getString(R.styleable.EQIconView_alert);
     }
 
+    /**
+     * constructor
+     * @param context
+     * @param attrs
+     * @param defStyleAttr
+     */
     public EQIconView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 
+    /**
+     * handle measurement calculations
+     * @param widthMeasureSpec
+     * @param heightMeasureSpec
+     */
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         //Figure out the aspect ratio of the image content
@@ -73,6 +95,13 @@ public class EQIconView  extends ImageView {
         setMeasuredDimension(widthSize, heightSize);
     }
 
+    /**
+     * getMeasurement
+     * helper method for measurement calculations
+     * @param measureSpec
+     * @param contentSize
+     * @return
+     */
     private  int getMeasurement(int measureSpec, int contentSize) {
         int specMode = View.MeasureSpec.getMode(measureSpec);
         int specSize = View.MeasureSpec.getSize(measureSpec);
@@ -95,20 +124,28 @@ public class EQIconView  extends ImageView {
         return resultSize;
     }
 
+    /**
+     * handle drawing into canvas
+     * @param canvas
+     */
     @Override
     protected void onDraw(Canvas canvas) {
         mPaint.setColor(getColorForSig(mSig));
         mPaint.setStyle(Paint.Style.FILL);
 
         final double scale = 0.9;
-        int width = (int)(getMeasuredWidth());
+        int width = getMeasuredWidth();
         int height = (int)(getMeasuredHeight()*scale);
         mPaint.setStrokeWidth(height/10);
         int r = (int)Math.min(width*scale/2,height*scale/2);
-        int xc=(int)(width/2);
-        int yc=(int)(height/2);
+        int xc= width/2;
+        int yc= height/2;
+        /**
+         * draw circle filled with color based on the significance
+         */
         canvas.drawCircle(xc,yc,r,mPaint);
 
+        /* draw src over the circle*/
         super.onDraw(canvas);
     }
 
@@ -128,9 +165,14 @@ public class EQIconView  extends ImageView {
         this.mAlert = mAlert;
     }
 
+    /**
+     * helper method to select color for given significance
+     * @param sig
+     * @return
+     */
     private int getColorForSig(int sig)
     {
-        int color = Color.BLACK;
+        int color;
         if(sig > 500 && sig <=1000)
         {
             color = Color.RED;

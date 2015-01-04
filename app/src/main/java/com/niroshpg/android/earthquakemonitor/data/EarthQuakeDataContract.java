@@ -13,7 +13,12 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * Defines table and column names for the earth quakes database.
+ * Defines table and column names for the earthquakes database.
+ *
+ * @author niroshpg
+ * @since  06/10/2014
+ *
+ * reference: The content provider implementation from https://github.com/udacity/Sunshine
  */
 public class EarthQuakeDataContract {
 
@@ -47,7 +52,6 @@ public class EarthQuakeDataContract {
         return dbDateFormat.print(date);
     }
 
-
     /**
      * Converts a dateText to a long Unix time representation
      * @param dateText the input date string
@@ -73,13 +77,17 @@ public class EarthQuakeDataContract {
         }
     }
 
+    /**
+     *
+     * @param date
+     * @return
+     */
     public static String getDbDateString(Date date) {
         SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
         return sdf.format(date);
     }
 
-
-    /* Inner class that defines the table contents of the weather table */
+    /* Inner class that defines the table contents of the quakes table */
     public static final class QuakesEntry implements BaseColumns {
 
         public static final Uri CONTENT_URI =
@@ -94,48 +102,66 @@ public class EarthQuakeDataContract {
 
         // Date, stored as Text with format yyyy-MM-dd
         public static final String COLUMN_DATETEXT = "date";
-        // Weather id as returned by API, to identify the icon to be used
+        // Quakes id as returned by API, to identify the icon to be used
         public static final String COLUMN_QUAKES_ID = "quakes_id";
 
-        // Short description and long description of the weather, as provided by API.
-        // e.g "clear" vs "sky is clear".
+        // Short description and long description of the earthquake event, as provided by USGS server.
         public static final String COLUMN_SHORT_DESC = "short_desc";
 
-        // Min and max temperatures for the day (stored as floats)
+        // magnitude of the earthquake
         public static final String COLUMN_MAG = "mag";
 
+        // alert level (red, orange, yellow, green and black) defined by USGS
         public static final String COLUMN_ALERT = "alert";
 
+        // significance level (0 ~ 1000) defined by USGS
         public static final String COLUMN_SIG = "sig";
 
+        // url for accessing the event in the USGS website
         public static final String COLUMN_URL = "url";
 
+        // timestamp for the last update
         public static final String COLUMN_UPDATED = "updated";
 
+        // place of the earthquake occured
         public static final String COLUMN_PLACE = "place";
 
-        // Humidity is stored as a float representing percentage
+        // depth of the earthquake
         public static final String COLUMN_DEPTH = "depth";
 
-        // Humidity is stored as a float representing percentage
+        // latitude of the event location
         public static final String COLUMN_LAT = "lat";
 
-        // Windspeed is stored as a float representing windspeed  mph
+        // longitude of the event location
         public static final String COLUMN_LONG = "long";
 
-        // Degrees are meteorological degrees (e.g, 0 is north, 180 is south).  Stored as floats.
+        // timezone of the event location
         public static final String COLUMN_TZ= "tz";
 
-
+        /**
+         * build uri with id
+         * @param id
+         * @return
+         */
         public static Uri buildQuakesUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
 
+        /**
+         * build uri with start date
+         * @param startDate
+         * @return
+         */
         public static Uri buildQuakeWithStartDate(String startDate) {
             return CONTENT_URI.buildUpon()
                     .appendQueryParameter(COLUMN_DATETEXT, startDate).build();
         }
 
+        /**
+         * get id from the uri
+         * @param uri
+         * @return
+         */
         public static String getIdFromUri(Uri uri) {
             return uri.getPathSegments().get(1);
         }

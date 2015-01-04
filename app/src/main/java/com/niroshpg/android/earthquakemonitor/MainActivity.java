@@ -15,6 +15,13 @@ import android.view.MenuItem;
 import com.google.android.gms.maps.model.LatLng;
 import com.niroshpg.android.earthquakemonitor.sync.EarthQuakeSyncAdapter;
 
+/**
+ * MainActivity for the application. Handles the main tab view using PagerAdapter and
+ * includes the logic to load rest of the activities and fragments
+ *
+ * @author niroshpg
+ * @since  06/10/2014
+ */
 public class MainActivity extends ActionBarActivity implements ActionBar.TabListener ,
          ListViewFragment.Callback {
     /**
@@ -132,6 +139,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
     @Override
     public void onItemSelected(String date, Long id, LatLng latLng) {
+        // dynamically load fragments or invoke activity according to
+        // two pane mode or not
         if (mTwoPane) {
             Bundle arguments = new Bundle();
             arguments.putString(DetailActivity.DATE_KEY, date);
@@ -159,7 +168,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         }
     }
 
-
+    /**
+     * clear the single instances used (to be used beginning of a new life cycle event)
+     */
     public static void clearInstances()
     {
         MapViewFragment.clearInstance();
@@ -188,14 +199,19 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         public Fragment getItem(int i) {
             switch (i) {
                 case 0:
-                    // The first section of the app is the most interesting -- it offers
-                    // a launchpad into the other demonstrations in this example application.
+                    /**
+                     * default fragment to be used. Here map fragment is use
+                     * as this will be more interesting to user
+                     */
                     mFragment = MapViewFragment.getNewInstance();
                  break;
 
                 default:
+                    /**
+                     * select list view for other selections
+                     */
                     mFragment= ListViewFragment.getNewInstance();
-                    ((ListViewFragment)mFragment).setUseTodayLayout(false);
+                    ((ListViewFragment)mFragment).setUseSpecificLayout(false);
                     mListViewFragment = ListViewFragment.getNewInstance();
                  break;
             }
@@ -236,6 +252,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         }
     }
 
+    /**
+     * hanlde exit with back button
+     */
     @Override
     public void onBackPressed() {
         Intent intent = new Intent(Intent.ACTION_MAIN);

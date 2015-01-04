@@ -2,6 +2,7 @@ package com.niroshpg.android.earthquakemonitor;
 
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -25,7 +26,14 @@ import com.niroshpg.android.earthquakemonitor.data.EarthQuakeDataContract;
 
 import java.util.TimeZone;
 
-public class MapViewDetailFragment extends SupportMapFragment implements     LoaderManager.LoaderCallbacks<Cursor> {
+/**
+ * Fragment to show the map within the detail activity view
+ *
+ * @author niroshpg
+ * @since  06/10/2014
+ */
+
+public class MapViewDetailFragment extends SupportMapFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     public static final String LOG_TAG = MapViewFragment.class.getSimpleName();
 
@@ -66,10 +74,6 @@ public class MapViewDetailFragment extends SupportMapFragment implements     Loa
     private TextView mFriendlyDateView;
     private TextView mPlaceView;
 
-    public void setMapZoom(int mMapZoom) {
-        this.mMapZoom = mMapZoom;
-    }
-
     private  int mMapZoom = DEFAULT_MAP_ZOOM;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -86,6 +90,7 @@ public class MapViewDetailFragment extends SupportMapFragment implements     Loa
         setUpMapIfNeeded();
         return view;
     }
+
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -247,7 +252,9 @@ public class MapViewDetailFragment extends SupportMapFragment implements     Loa
                             markerOptions.position(latLng);
                             markerOptions.title("Magnitude: " + String.valueOf(high) + " M") ;
                             markerOptions.snippet("Depth: " + String.valueOf(low) + "km") ;
-                            markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_marker));
+                            int resourceId = Utility.getMarkerResourceForSignificance(significance);
+                            Bitmap bitmap = Utility.addAlertData(getActivity(),resourceId,alert);
+                            markerOptions.icon(BitmapDescriptorFactory.fromBitmap(bitmap));
                             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, mMapZoom));
                             mMap.addMarker(markerOptions);
                         }
@@ -260,17 +267,9 @@ public class MapViewDetailFragment extends SupportMapFragment implements     Loa
     @Override
     public void onLoaderReset(Loader<Cursor> cursorLoader) {
         switch (cursorLoader.getId()) {
-
             case QUAKES_LOADER:
                 mMap.clear();
                 break;
         }
     }
-
-//    public void restartLoader()
-//    {
-//        if(this.isAdded() ) {
-//            getLoaderManager().restartLoader(QUAKES_LOADER, null, this);
-//        }
-//    }
 }
