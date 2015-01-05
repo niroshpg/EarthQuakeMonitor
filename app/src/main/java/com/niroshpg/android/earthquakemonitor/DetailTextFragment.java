@@ -66,12 +66,6 @@ public class DetailTextFragment extends Fragment implements LoaderManager.Loader
     // For the forecast view we're showing only a small subset of the stored data.
     // Specify the columns we need.
     private static final String[] QUAKES_COLUMNS = {
-            // In this case the id needs to be fully qualified with a table name, since
-            // the content provider joins the location & weather tables in the background
-            // (both have an _id column)
-            // On the one hand, that's annoying.  On the other, you can search the weather table
-            // using the location set by the user, which is only in the Location table.
-            // So the convenience is worth it.
             QuakesEntry.TABLE_NAME + "." + QuakesEntry._ID,
             QuakesEntry.COLUMN_DATETEXT,
             QuakesEntry.COLUMN_SHORT_DESC,

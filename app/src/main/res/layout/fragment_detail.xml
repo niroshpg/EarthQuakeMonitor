@@ -14,8 +14,6 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Header: Day, Date -->
-
         <LinearLayout
             android:gravity="center_horizontal"
             android:layout_height="match_parent"
@@ -74,11 +72,6 @@
             </LinearLayout>
         </LinearLayout>
 
-
-
-        <!-- Main content: high, low, art, weather state -->
-
-        <!-- Humidity, wind, pressure -->
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"

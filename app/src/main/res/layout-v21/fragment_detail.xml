@@ -13,13 +13,6 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Header: Day, Date -->
-
-
-        <!-- Main content: high, low, art, weather state -->
-
-        <!-- Humidity, wind, pressure -->
-
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"

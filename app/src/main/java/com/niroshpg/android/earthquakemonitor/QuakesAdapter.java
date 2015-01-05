@@ -90,14 +90,14 @@ public class QuakesAdapter extends CursorAdapter {
             viewHolder.iconView.setSig(sig);
             switch (viewType) {
                 case VIEW_TYPE_TODAY: {
-                    // Get weather icon
+                    // Get icon
                     viewHolder.iconView.setImageResource(Utility.getArtResourceForAlertCondition(
                             alert, sig));
 
                     break;
                 }
                 case VIEW_TYPE_FUTURE_DAY: {
-                    // Get weather icon
+                    // Get icon
                     viewHolder.iconView.setImageResource(Utility.getIconResourceForAlertCondition(
                             alert, sig));
                     break;

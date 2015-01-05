@@ -37,7 +37,7 @@
     <string name="pref_enable_notifications_false">Not Enabled</string>
     <string name="pref_enable_notifications_default" translatable="false">true</string>
 
-    <!-- Strings for formatting weather-related data -->
+    <!-- Strings for formatting earthquake related data -->
 
 
     <!-- Label for the minimum significant level preference [CHAR LIMIT=30] -->

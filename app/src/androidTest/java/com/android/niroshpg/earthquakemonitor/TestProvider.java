@@ -46,9 +46,9 @@ public class TestProvider extends AndroidTestCase {
     public void testInsertReadProvider() {
         ContentValues earthquakeValues = TestDb.createEarthquakeValues();
 
-        Uri weatherInsertUri = mContext.getContentResolver()
+        Uri quakeInsertUri = mContext.getContentResolver()
                 .insert(QuakesEntry.CONTENT_URI, earthquakeValues);
-        assertTrue(weatherInsertUri != null);
+        assertTrue(quakeInsertUri != null);
 
         // A cursor is your primary interface to the query results.
         Cursor quakesCursor = mContext.getContentResolver().query(

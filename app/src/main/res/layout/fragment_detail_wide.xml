@@ -26,8 +26,6 @@
                 android:orientation="horizontal"
                 android:layout_weight="1">
 
-                <!-- Humidity, wind, pressure -->
-
                 <LinearLayout
                     android:orientation="vertical"
                     android:layout_width="match_parent"
@@ -115,8 +113,6 @@
             </LinearLayout>
 
         </LinearLayout>
-
-        <!-- Main content: high, low, art, weather state -->
 
         <LinearLayout
             android:gravity="center_horizontal"
