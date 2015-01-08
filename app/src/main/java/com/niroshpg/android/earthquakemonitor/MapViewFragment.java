@@ -38,7 +38,7 @@ public class MapViewFragment extends SupportMapFragment implements MainActivity.
 
     public static final String LOG_TAG = MapViewFragment.class.getSimpleName();
 
-    // For the forecast view we're showing only a small subset of the stored data.
+    // For the earthquake events view we're showing only a small subset of the stored data.
     // Specify the columns we need.
     public static final String[] QUAKES_COLUMNS = {
             QuakesEntry.TABLE_NAME + "." + QuakesEntry._ID,
@@ -55,7 +55,7 @@ public class MapViewFragment extends SupportMapFragment implements MainActivity.
     };
 
 
-    // These indices are tied to FORECAST_COLUMNS.  If FORECAST_COLUMNS changes, these
+    // These indices are tied to QUAKES_COLUMNS.  If QUAKES_COLUMNS changes, these
     // must change.
     public static final int COL_QUAKE_ID = 0;
     public static final int COL_QUAKE_DATE = 1;

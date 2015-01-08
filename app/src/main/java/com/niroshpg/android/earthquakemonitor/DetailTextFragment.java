@@ -63,7 +63,7 @@ public class DetailTextFragment extends Fragment implements LoaderManager.Loader
 
     private static final int DETAIL_LOADER = 0;
 
-    // For the forecast view we're showing only a small subset of the stored data.
+    // For the earthquake events view we're showing only a small subset of the stored data.
     // Specify the columns we need.
     private static final String[] QUAKES_COLUMNS = {
             QuakesEntry.TABLE_NAME + "." + QuakesEntry._ID,

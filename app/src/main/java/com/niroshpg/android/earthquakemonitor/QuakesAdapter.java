@@ -41,7 +41,7 @@ public class QuakesAdapter extends CursorAdapter {
     private List<MarkerOptions> markerOptionsList = new ArrayList<MarkerOptions>();
 
     /**
-     * Cache of the children views for a forecast list item.
+     * Cache of the children views for a earthquake events list item.
      */
     public static class ViewHolder {
         public final EQIconView iconView;

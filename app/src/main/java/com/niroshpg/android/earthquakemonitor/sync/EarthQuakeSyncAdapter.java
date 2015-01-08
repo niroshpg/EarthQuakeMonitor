@@ -108,7 +108,7 @@ public class EarthQuakeSyncAdapter extends AbstractThreadedSyncAdapter {
         BufferedReader reader = null;
 
         // Will contain the raw JSON response as a string.
-        String forecastJsonStr = null;
+        String earthquakeEventsJsonString = null;
 
         int numDays = getSelectedNumberOfDays();
 
@@ -144,7 +144,7 @@ public class EarthQuakeSyncAdapter extends AbstractThreadedSyncAdapter {
                 // Stream was empty.  No point in parsing.
                 return ;
             }
-            forecastJsonStr = buffer.toString();
+            earthquakeEventsJsonString = buffer.toString();
         } catch (IOException e) {
             Log.e(LOG_TAG, "Error ", e);
             // If the code didn't successfully get the earthquake events data, there's no point in attempting
@@ -180,8 +180,8 @@ public class EarthQuakeSyncAdapter extends AbstractThreadedSyncAdapter {
         final String USGS_FEATURE_GOEMETRY_COORD = "coordinates";
 
         try {
-            JSONObject forecastJson = new JSONObject(forecastJsonStr);
-            JSONArray featuresArray = forecastJson.getJSONArray(USGS_FEATURES);
+            JSONObject earthquakesEventsJson = new JSONObject(earthquakeEventsJsonString);
+            JSONArray featuresArray = earthquakesEventsJson.getJSONArray(USGS_FEATURES);
 
             // Insert the new earthquakes information into the database
             Vector<ContentValues> cVVector = new Vector<ContentValues>(featuresArray.length());

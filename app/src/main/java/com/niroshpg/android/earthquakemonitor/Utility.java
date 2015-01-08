@@ -73,7 +73,7 @@ public class Utility {
      * @return a user-friendly representation of the date.
      */
     public static String getFriendlyDayString(Context context, String dateStr) {
-        // The day string for forecast uses the following logic:
+        // The day string for earthquake events uses the following logic:
         // For today: "Today, June 8"
         // For tomorrow:  "Tomorrow"
         // For the next 5 days: "Wednesday" (just the day name)
