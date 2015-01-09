@@ -47,8 +47,14 @@ public class Utility {
     // Format used for storing dates in the database.  ALso used for converting those strings
     // back into date objects for comparison/processing.
     public static final String DATE_FORMAT = "yyyyMMdd";
+
     public static final String DATETIME_FORMAT = "yyyyMMddHHmmss";
+
     public static TimeZone currentTimeZone = Calendar.getInstance().getTimeZone();
+
+    public static final int STROKE_WIDTH_ADJUST = 15;
+    public static final int PATH_EFFECT_ADJUST = 10;
+
 
     /**
      * Helper method to convert the database representation of the date into something to display
@@ -254,9 +260,6 @@ public class Utility {
      * @return
      */
     public static Bitmap addAlertData(Context context, int drawableId, String alert) {
-
-
-
         Bitmap bm = BitmapFactory.decodeResource(context.getResources(), drawableId)
                 .copy(Bitmap.Config.ARGB_8888, true);
         Paint paint = new Paint();
@@ -265,19 +268,20 @@ public class Utility {
 
         paint.setAntiAlias(true);
         Canvas canvas = new Canvas(bm);
-
-
-
         final double scale = 0.9;
         int width = canvas.getWidth();
         int height = (int)(canvas.getHeight()*scale);
-        paint.setStrokeWidth(height/15);
+        paint.setStrokeWidth(height/STROKE_WIDTH_ADJUST);
 
         /**
          * to make alert ring to be totted with intervals correlated to the device size
          * factor derived from canvas width measurement is used here
          */
-        paint.setPathEffect(new DashPathEffect(new float[] {2.0f*(width/10),1.0f*(width/10)}, 0));
+        paint.setPathEffect(
+                new DashPathEffect( new float[] {
+                                    2.0f *( width / PATH_EFFECT_ADJUST ),
+                                    1.0f *( width / PATH_EFFECT_ADJUST )}, 0)
+                );
         int r = (int)Math.min(width*scale/2,height*scale/2);
         int xc=width/2;
         int yc=height/2;
