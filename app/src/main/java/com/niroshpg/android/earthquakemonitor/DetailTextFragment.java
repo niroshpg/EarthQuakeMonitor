@@ -138,9 +138,8 @@ public class DetailTextFragment extends Fragment implements LoaderManager.Loader
     public void onResume() {
         super.onResume();
         Bundle arguments = getArguments();
-        if (arguments != null && arguments.containsKey(DetailActivity.DATE_KEY) &&
-                mLocation != null &&
-                !mLocation.equals(Utility.getPreferredLocation(getActivity()))) {
+        if (arguments != null && arguments.containsKey(DetailActivity.DATE_KEY)
+                ) {
             getLoaderManager().restartLoader(DETAIL_LOADER, null, this);
         }
     }

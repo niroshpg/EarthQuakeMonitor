@@ -16,14 +16,12 @@
 package com.niroshpg.android.earthquakemonitor;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
 import android.graphics.Paint;
-import android.preference.PreferenceManager;
 
 import com.niroshpg.android.earthquakemonitor.data.EarthQuakeDataContract;
 
@@ -32,7 +30,6 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -46,24 +43,12 @@ import java.util.TimeZone;
  * @since  06/10/2014
  */
 public class Utility {
-    public static String getPreferredLocation(Context context) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        return prefs.getString(context.getString(R.string.pref_location_key),
-                context.getString(R.string.pref_location_default));
-    }
-
-    static String formatDate(String dateString) {
-        Date date = EarthQuakeDataContract.getDateFromDb(dateString);
-        return DateFormat.getDateInstance().format(date);
-    }
 
     // Format used for storing dates in the database.  ALso used for converting those strings
     // back into date objects for comparison/processing.
     public static final String DATE_FORMAT = "yyyyMMdd";
     public static final String DATETIME_FORMAT = "yyyyMMddHHmmss";
     public static TimeZone currentTimeZone = Calendar.getInstance().getTimeZone();
-
-    public static final DashPathEffect DASH_PATH_EFFECT =  new DashPathEffect(new float[] {8.0f,4.0f}, 0);
 
     /**
      * Helper method to convert the database representation of the date into something to display
@@ -105,45 +90,6 @@ public class Utility {
         }
     }
 
-    /**
-     * Given a day, returns just the name to use for that day.
-     * E.g "today", "tomorrow", "wednesday".
-     *
-     * @param context Context to use for resource localization
-     * @param dateStr The db formatted date string, expected to be of the form specified
-     *                in Utility.DATE_FORMAT
-     * @return
-     */
-    public static String getDayName(Context context, String dateStr) {
-        SimpleDateFormat dbDateFormat = new SimpleDateFormat(Utility.DATE_FORMAT);
-        try {
-            Date inputDate = dbDateFormat.parse(dateStr);
-            Date todayDate = new Date();
-            // If the date is today, return the localized version of "Today" instead of the actual
-            // day name.
-            if (EarthQuakeDataContract.getDbDateString(todayDate).equals(dateStr)) {
-                return context.getString(R.string.today);
-            } else {
-                // If the date is set for tomorrow, the format is "Tomorrow".
-                Calendar cal = Calendar.getInstance();
-                cal.setTime(todayDate);
-                cal.add(Calendar.DATE, 1);
-                Date tomorrowDate = cal.getTime();
-                if (EarthQuakeDataContract.getDbDateString(tomorrowDate).equals(
-                        dateStr)) {
-                    return context.getString(R.string.tomorrow);
-                } else {
-                    // Otherwise, the format is just the day of the week (e.g "Wednesday".
-                    SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE");
-                    return dayFormat.format(inputDate);
-                }
-            }
-        } catch (ParseException e) {
-            e.printStackTrace();
-            // It couldn't process the date correctly.
-            return "";
-        }
-    }
 
     /**
      * Converts db date format to the format "Month day", e.g "June 24".
@@ -309,19 +255,29 @@ public class Utility {
      */
     public static Bitmap addAlertData(Context context, int drawableId, String alert) {
 
+
+
         Bitmap bm = BitmapFactory.decodeResource(context.getResources(), drawableId)
                 .copy(Bitmap.Config.ARGB_8888, true);
         Paint paint = new Paint();
         paint.setStyle(Paint.Style.STROKE);
         paint.setColor(getColorForAlert(alert));
-        paint.setPathEffect(DASH_PATH_EFFECT);
+
         paint.setAntiAlias(true);
         Canvas canvas = new Canvas(bm);
+
+
 
         final double scale = 0.9;
         int width = canvas.getWidth();
         int height = (int)(canvas.getHeight()*scale);
         paint.setStrokeWidth(height/15);
+
+        /**
+         * to make alert ring to be totted with intervals correlated to the device size
+         * factor derived from canvas width measurement is used here
+         */
+        paint.setPathEffect(new DashPathEffect(new float[] {2.0f*(width/10),1.0f*(width/10)}, 0));
         int r = (int)Math.min(width*scale/2,height*scale/2);
         int xc=width/2;
         int yc=height/2;
