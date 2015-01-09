@@ -63,6 +63,8 @@ public class Utility {
     public static final String DATETIME_FORMAT = "yyyyMMddHHmmss";
     public static TimeZone currentTimeZone = Calendar.getInstance().getTimeZone();
 
+    public static final DashPathEffect DASH_PATH_EFFECT =  new DashPathEffect(new float[] {8.0f,4.0f}, 0);
+
     /**
      * Helper method to convert the database representation of the date into something to display
      * to users.  As classy and polished a user experience as "20140102" is, we can do better.
@@ -312,14 +314,14 @@ public class Utility {
         Paint paint = new Paint();
         paint.setStyle(Paint.Style.STROKE);
         paint.setColor(getColorForAlert(alert));
-        paint.setPathEffect(new DashPathEffect(new float[] {20,10}, 0));
-
+        paint.setPathEffect(DASH_PATH_EFFECT);
+        paint.setAntiAlias(true);
         Canvas canvas = new Canvas(bm);
 
         final double scale = 0.9;
         int width = canvas.getWidth();
         int height = (int)(canvas.getHeight()*scale);
-        paint.setStrokeWidth(height/20);
+        paint.setStrokeWidth(height/15);
         int r = (int)Math.min(width*scale/2,height*scale/2);
         int xc=width/2;
         int yc=height/2;
