@@ -240,7 +240,7 @@ public class DetailTextFragment extends Fragment implements LoaderManager.Loader
             mLatitude = data.getDouble(data.getColumnIndex(EarthQuakeDataContract.QuakesEntry.COLUMN_LAT));
 
             mLatLngView.setText("Location: ("+mLatitude+","+mLongitude+")");
-            mAlertView.setText("Alert: "+alert);
+            mAlertView.setText("Alert: "+((alert !=null) ? alert : "Not defined"));
             mSigView.setText("Significance: "+String.valueOf(sig));
 
             String url = data.getString(data.getColumnIndex(EarthQuakeDataContract.QuakesEntry.COLUMN_URL));
