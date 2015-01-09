@@ -240,7 +240,7 @@ public class DetailTextFragment extends Fragment implements LoaderManager.Loader
             mLatitude = data.getDouble(data.getColumnIndex(EarthQuakeDataContract.QuakesEntry.COLUMN_LAT));
 
             mLatLngView.setText("Location: ("+mLatitude+","+mLongitude+")");
-            mAlertView.setText("Alert: "+((alert !=null) ? alert : "Not defined"));
+            mAlertView.setText("Alert: "+ getAlertDisplayString (alert) );
             mSigView.setText("Significance: "+String.valueOf(sig));
 
             String url = data.getString(data.getColumnIndex(EarthQuakeDataContract.QuakesEntry.COLUMN_URL));
@@ -260,6 +260,31 @@ public class DetailTextFragment extends Fragment implements LoaderManager.Loader
         }
     }
 
+
+    /**
+     * Define alert string to display. For alert marked as null by USGS
+     * display meaningful text for user as "Not defined"
+     *
+     * @param alert
+     * @return
+     */
+    private String getAlertDisplayString(String alert)
+    {
+        String returnValue = alert;
+        if(alert != null)
+        {
+            if (alert.contains("null"))
+            {
+                returnValue = "Not defined";
+            }
+        }
+        else
+        {
+            returnValue = "Not defined";
+        }
+
+        return returnValue;
+    }
     @Override
     public void onLoaderReset(Loader<Cursor> loader) { }
 
