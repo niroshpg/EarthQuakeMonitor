@@ -1,4 +1,4 @@
-package com.android.niroshpg.earthquakemonitor;
+package com.niroshpg.android.earthquakemonitor;
 
 import android.content.ContentValues;
 import android.database.Cursor;
