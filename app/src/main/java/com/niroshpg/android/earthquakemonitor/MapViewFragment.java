@@ -3,6 +3,8 @@ package com.niroshpg.android.earthquakemonitor;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -12,20 +14,30 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polygon;
+import com.google.android.gms.maps.model.PolygonOptions;
 import com.niroshpg.android.earthquakemonitor.data.EarthQuakeDataContract;
 import com.niroshpg.android.earthquakemonitor.data.EarthQuakeDataContract.QuakesEntry;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 /**
  * Fragment to show the map within the main activity view
@@ -79,6 +91,11 @@ public class MapViewFragment extends SupportMapFragment implements MainActivity.
     private boolean isMarkersLoaded = false;
     private int mMapZoom = DEFAULT_MAP_ZOOM;
     private static boolean enableCursorLoader  = false;
+    private PolygonOptions rectOptions;
+    private boolean allowMapToScroll = false;
+    public BlockingQueue<LatLng> latLngBlockingQueue = new ArrayBlockingQueue<LatLng>(1024);
+    private Polygon polygon;
+    ImageButton clearRegion;
 
     public static MapViewFragment getNewInstance()
     {
@@ -108,9 +125,123 @@ public class MapViewFragment extends SupportMapFragment implements MainActivity.
         super.onCreateView(inflater,container, savedInstanceState );
 
         View view = inflater.inflate(R.layout.fragment_map, container, false);
+
+//        FrameLayout suportMapOverlayLayout = (FrameLayout)view.findViewById(R.id.suport_map_overlay);
+//        suportMapOverlayLayout.setOnTouchListener(new View.OnTouchListener(){
+//                @Override
+//                public boolean onTouch(View v, MotionEvent event) {
+//                    return false;
+//                }
+//            }
+//        );
+
+        ImageButton markRegion = (ImageButton)view.findViewById(R.id.markRegionButton);
+        final ImageButton clearRegion = (ImageButton)view.findViewById(R.id.clearMarkedRegionButton);
+
+        markRegion.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (allowMapToScroll != true) {
+                    allowMapToScroll = true;
+                    clearRegion.setVisibility(View.VISIBLE);
+                } else {
+                    allowMapToScroll = false;
+
+                    clearRegion.setVisibility(View.GONE);
+                }
+            }
+        });
+
+
+
+        clearRegion.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(polygon != null) {
+                    polygon.remove();
+                    latLngBlockingQueue.clear();
+                }
+            }
+        });
+        FrameLayout parentLayout1 = (FrameLayout)view.findViewById(R.id.suport_map_overlay);
+        parentLayout1.setOnTouchListener(new View.OnTouchListener() {
+
+
+            public double longitude;
+            public double latitude;
+            public Projection projection;
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    float x = event.getX();
+                    float y = event.getY();
+
+                    int x_co = Math.round(x);
+                    int y_co = Math.round(y);
+
+                    projection = mMap.getProjection();
+                    Point x_y_points = new Point(x_co, y_co);
+
+                    LatLng latLng = mMap.getProjection().fromScreenLocation(x_y_points);
+                    latitude = latLng.latitude;
+
+                    longitude = latLng.longitude;
+
+                    int eventaction = event.getAction();
+                    switch (eventaction) {
+                        case MotionEvent.ACTION_DOWN:
+                            // finger touches the screen
+                            latLngBlockingQueue.add(new LatLng(latitude, longitude));
+                            break;
+
+                        case MotionEvent.ACTION_MOVE:
+                            // finger moves on the screen
+                            latLngBlockingQueue.add(new LatLng(latitude, longitude));
+                            break;
+
+                        case MotionEvent.ACTION_UP:
+                            // finger leaves the screen
+                            Draw_Map();
+                            break;
+                    }
+                    if (allowMapToScroll == true) {
+                        return true;
+
+                    } else {
+                        return false;
+                    }
+                }
+        });
+        RelativeLayout parentLayout = (RelativeLayout)view.findViewById(R.id.fragment_map_parent);
+        parentLayout.setOnTouchListener(new View.OnTouchListener() {
+
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+
+
+                if (allowMapToScroll == true) {
+                    return true;
+
+                } else {
+                    return false;
+                }
+            }
+        });
+
         setUpMapIfNeeded();
         return view;
     }
+
+    public void Draw_Map() {
+        rectOptions = new PolygonOptions();
+        rectOptions.addAll(latLngBlockingQueue);
+        rectOptions.strokeColor(Color.BLUE);
+        rectOptions.strokeWidth(7);
+        rectOptions.fillColor(R.color.earthquake_drawfill);
+        polygon = mMap.addPolygon(rectOptions);
+    }
+
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);

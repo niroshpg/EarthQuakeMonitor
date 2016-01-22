@@ -3,8 +3,45 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/fragment_map_container"
+    android:id="@+id/fragment_map_parent"
     android:padding="4dp">
 
     <!-- The map fragments will go here -->
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/fragment_map_container"></FrameLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/suport_map_overlay"
+        android:background="@android:color/transparent">
+
+    </FrameLayout>
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/markRegionButton"
+        android:src="@drawable/mark_region"
+        android:background="@android:color/transparent"
+        android:scaleType="fitXY"
+        android:minHeight="64dp"
+        android:minWidth="64dp" />
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/clearMarkedRegionButton"
+        android:layout_gravity="center_horizontal|top"
+        android:layout_toRightOf="@+id/markRegionButton"
+        android:minHeight="64dp"
+        android:minWidth="64dp"
+        android:src="@android:drawable/ic_menu_close_clear_cancel"
+        android:scaleType="fitXY"
+        android:background="@android:color/transparent"
+        android:tint="#9c110e"
+        android:visibility="gone" />
 </RelativeLayout>

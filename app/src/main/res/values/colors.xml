@@ -11,5 +11,6 @@
     <color name="earthquake_light_blue">#ff64c2f4</color>
     <color name="earthquake_blue">#ff1ca8f4</color>
     <color name="earthquake_dark_blue">#ff1c98f4</color>
+    <color name="earthquake_drawfill">#4bbebaad</color>
 
 </resources>

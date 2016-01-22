@@ -32,6 +32,10 @@ import com.google.android.gms.iid.InstanceID;
 import com.niroshpg.android.earthquakemonitor.MainActivity;
 import com.niroshpg.android.earthquakemonitor.R;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -39,6 +43,7 @@ import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 
 public class RegistrationIntentService extends IntentService {
 
@@ -63,7 +68,7 @@ public class RegistrationIntentService extends IntentService {
                 // are local.
                 // [START get_token]
                 InstanceID instanceID = InstanceID.getInstance(this);
-                String token = instanceID.getToken(getString(R.string.gcm_defaultSenderId),
+                String token = instanceID.getToken(getString(R.string.gcm_sender_id),
                         GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
                 // [END get_token]
                 Log.i(TAG, "GCM Registration Token: " + token);
@@ -106,7 +111,7 @@ public class RegistrationIntentService extends IntentService {
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         if (networkInfo != null && networkInfo.isConnected()) {
             try {
-                postToUrl(stringUrl + "?regId=" + token);
+                postToUrl(stringUrl + "?regId=" + token,token);
             }catch (IOException ex)
             {
                 Log.d(TAG, ex.getLocalizedMessage());
@@ -115,30 +120,57 @@ public class RegistrationIntentService extends IntentService {
             // textView.setText("No network connection available.");
         }
     }
-    private String postToUrl(String myurl) throws IOException {
+    private String postToUrl(String myurl,String regId) throws IOException {
         InputStream is = null;
+        DataOutputStream os = null;
         // Only display the first 500 characters of the retrieved
         // web page content.
         int len = 500;
 
+        String returnValue = "";
+
         try {
             URL url = new URL(myurl);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+            conn.setDoOutput(true);
+            conn.setDoInput(true);
+            conn.setInstanceFollowRedirects(false);
+            conn.setRequestMethod("POST");URL:
+            conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+            conn.setRequestProperty("charset", "utf-8");
+            //conn.setRequestProperty("Content-Length", "" + Integer.toString(urlParameters.getBytes().length));
+            conn.setUseCaches (false);
+
             conn.setReadTimeout(10000 /* milliseconds */);
             conn.setConnectTimeout(15000 /* milliseconds */);
             conn.setRequestMethod("POST");
             conn.setDoInput(true);
             // Starts the query
             conn.connect();
+
+            //Create JSONObject here
+            JSONObject jsonParam = new JSONObject();
+            jsonParam.put("regId", regId);
+            // Send POST output.
+            os = new DataOutputStream(conn.getOutputStream ());
+            os.write(URLEncoder.encode(jsonParam.toString()).getBytes("UTF-8"));
+            os.flush ();
+            os.close();
+
             int statusCode = conn.getResponseCode();
             Log.d(TAG, "The response is: " + statusCode);
-            return String.valueOf(statusCode);
+            returnValue = String.valueOf(statusCode);
 
+        } catch (JSONException e) {
+            e.printStackTrace();
         } finally {
             if (is != null) {
                 is.close();
             }
         }
+
+        return returnValue;
     }
 
     // Reads an InputStream and converts it to a String.
