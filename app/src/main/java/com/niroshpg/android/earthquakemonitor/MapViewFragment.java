@@ -1,5 +1,7 @@
 package com.niroshpg.android.earthquakemonitor;
 
+import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -13,14 +15,18 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.Projection;
@@ -32,10 +38,16 @@ import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
 import com.niroshpg.android.earthquakemonitor.data.EarthQuakeDataContract;
 import com.niroshpg.android.earthquakemonitor.data.EarthQuakeDataContract.QuakesEntry;
+import com.niroshpg.android.earthquakemonitor.push.RegistrationIntentService;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
@@ -49,6 +61,8 @@ public class MapViewFragment extends SupportMapFragment implements MainActivity.
        LoaderManager.LoaderCallbacks<Cursor> {
 
     public static final String LOG_TAG = MapViewFragment.class.getSimpleName();
+
+    private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 
     // For the earthquake events view we're showing only a small subset of the stored data.
     // Specify the columns we need.
@@ -158,7 +172,7 @@ public class MapViewFragment extends SupportMapFragment implements MainActivity.
         clearRegion.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(polygon != null) {
+                if (polygon != null) {
                     polygon.remove();
                     latLngBlockingQueue.clear();
                 }
@@ -202,6 +216,7 @@ public class MapViewFragment extends SupportMapFragment implements MainActivity.
                         case MotionEvent.ACTION_UP:
                             // finger leaves the screen
                             Draw_Map();
+
                             break;
                     }
                     if (allowMapToScroll == true) {
@@ -212,6 +227,24 @@ public class MapViewFragment extends SupportMapFragment implements MainActivity.
                     }
                 }
         });
+
+        Button register = (Button)view.findViewById(R.id.register);
+        register.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (checkPlayServices()) {
+
+                    if(polygon!=null) {
+                        savePolygon(getActivity().getApplicationContext(), polygon.getPoints());
+                    }
+
+                    // Start IntentService to register this application with GCM.
+                    Intent intent = new Intent(getActivity(), RegistrationIntentService.class);
+                    getActivity().startService(intent);
+                }
+            }
+        });
+
         RelativeLayout parentLayout = (RelativeLayout)view.findViewById(R.id.fragment_map_parent);
         parentLayout.setOnTouchListener(new View.OnTouchListener() {
 
@@ -235,11 +268,44 @@ public class MapViewFragment extends SupportMapFragment implements MainActivity.
 
     public void Draw_Map() {
         rectOptions = new PolygonOptions();
-        rectOptions.addAll(latLngBlockingQueue);
+        List<LatLng> points = new ArrayList<>( );
+
+
+        points.addAll(latLngBlockingQueue);
+        double minLat = points.get(0).latitude;
+        double maxLat =  points.get(0).latitude;
+        double minLng =  points.get(0).longitude;
+        double maxLng =  points.get(0).longitude;
+
+        for (LatLng point : points)
+        {
+            if(point.latitude < minLat)    minLat = point.latitude;
+            if(point.latitude > maxLat)    maxLat = point.latitude;
+            if(point.longitude < minLng)    minLng = point.longitude;
+            if(point.longitude > maxLng)    maxLng = point.longitude;
+        }
+        LatLng p1 = new LatLng(minLat,minLng);
+        LatLng p2 = new LatLng(minLat,maxLng);
+        LatLng p3 = new LatLng(maxLat,maxLng);
+        LatLng p4 = new LatLng(maxLat,minLng);
+        rectOptions.add(p1);
+        rectOptions.add(p2);
+        rectOptions.add(p3);
+        rectOptions.add(p4);
+        rectOptions.add(p1);
+        //rectOptions.addAll(latLngBlockingQueue);
+        //rectOptions.add(rectOptions.getPoints().get(0));
         rectOptions.strokeColor(Color.BLUE);
         rectOptions.strokeWidth(7);
-        rectOptions.fillColor(R.color.earthquake_drawfill);
+        //rectOptions.fillColor(R.color.transparent);
+
+        if(polygon != null )
+        {
+            polygon.remove();
+        }
         polygon = mMap.addPolygon(rectOptions);
+
+
     }
 
     @Override
@@ -422,5 +488,76 @@ public class MapViewFragment extends SupportMapFragment implements MainActivity.
         }
     }
 
+    /**
+     * save picture location list in shared preferences
+     * @param context
+     * @param list
+     */
+    private  void savePolygon(Context context, List<LatLng> list)
+    {
+        if(list != null && list.size()> 0) {
+            String preferenceName = context.getResources().getString(R.string.REGION_SHARED_PREF_NAME);
+            SharedPreferences sharedPref = context.getSharedPreferences(preferenceName, Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPref.edit();
+
+            String imageListAsJsonString = convertToJson(list).toString();
+            editor.putString(context.getString(R.string.preference_polygon_list),imageListAsJsonString );
+            editor.commit();
+
+        }
+        else
+        {
+            Log.w(LOG_TAG, "failed to save picture location list");
+        }
+    };
+
+    private JSONObject convertToJson(List<LatLng> list)
+    {
+        JSONObject polygonJsonObj = new JSONObject();
+        try {
+
+        JSONArray polygonJsonArray = new JSONArray();
+
+
+        for (LatLng aLatLng : list) {
+            JSONObject latLngPoint = new JSONObject();
+
+            latLngPoint.put("lat",aLatLng.latitude);
+            latLngPoint.put("lng",aLatLng.longitude);
+
+            JSONArray latLngArray = new JSONArray();
+            latLngArray.put(latLngPoint);
+
+            polygonJsonArray.put(latLngArray);
+        }
+
+            polygonJsonObj.put("regionPolygon", polygonJsonArray);
+        } catch (JSONException e) {
+            e.printStackTrace();
+
+        }
+        Log.e(LOG_TAG,polygonJsonObj.toString());
+        return polygonJsonObj;
+    }
+
+    /**
+     * Check the device to make sure it has the Google Play Services APK. If
+     * it doesn't, display a dialog that allows users to download the APK from
+     * the Google Play Store or enable it in the device's system settings.
+     */
+    private boolean checkPlayServices() {
+        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getActivity());
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
+                GooglePlayServicesUtil.getErrorDialog(resultCode, getActivity(),
+                        PLAY_SERVICES_RESOLUTION_REQUEST).show();
+            } else {
+                Log.i(LOG_TAG, "This device is not supported.");
+                getActivity().finish();
+            }
+            return false;
+        }
+        return true;
+    }
 
 }

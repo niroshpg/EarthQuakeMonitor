@@ -6,6 +6,7 @@
     <color name="grey">#cccccc</color>
     <color name="grey_700">#646464</color>
     <color name="black">#000000</color>
+    <color name="transparent">#00000000</color>
     <color name="earthquake_grey">#ffc0c0c0</color>
     <color name="earthquake_light_grey">#ffa4c0c0</color>
     <color name="earthquake_light_blue">#ff64c2f4</color>

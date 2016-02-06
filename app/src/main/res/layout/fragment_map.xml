@@ -44,4 +44,14 @@
         android:background="@android:color/transparent"
         android:tint="#9c110e"
         android:visibility="gone" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Register"
+        android:id="@+id/register"
+        android:layout_gravity="center_horizontal|bottom"
+        android:layout_alignBottom="@+id/suport_map_overlay"
+        android:layout_centerHorizontal="true" />
+
 </RelativeLayout>

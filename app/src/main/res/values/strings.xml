@@ -144,5 +144,7 @@
     <string name="title_activity_maps">Map</string>
     <string name="title_activity_main">MainActivity</string>
 
-
+    <string name="REGION_SHARED_PREF_NAME">EQMRegionSharedPreferences</string>
+    <string name="preference_polygon_list" />
+    <string name="preference_polygon_list_default">preference_polygon_list_default</string>
 </resources>

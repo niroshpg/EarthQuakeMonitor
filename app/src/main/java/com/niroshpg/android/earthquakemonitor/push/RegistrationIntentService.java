@@ -44,6 +44,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
 
 public class RegistrationIntentService extends IntentService {
 
@@ -111,7 +113,8 @@ public class RegistrationIntentService extends IntentService {
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         if (networkInfo != null && networkInfo.isConnected()) {
             try {
-                postToUrl(stringUrl + "?regId=" + token,token);
+                JSONObject polygon = loadPolygon(this);
+                postToUrl(stringUrl,token,polygon,5.0,ServerCommand.REGISTER);
             }catch (IOException ex)
             {
                 Log.d(TAG, ex.getLocalizedMessage());
@@ -120,7 +123,8 @@ public class RegistrationIntentService extends IntentService {
             // textView.setText("No network connection available.");
         }
     }
-    private String postToUrl(String myurl,String regId) throws IOException {
+    private String postToUrl(String myUrl,String regId,JSONObject polygon,double minMagnitude,
+                             ServerCommand command) throws IOException {
         InputStream is = null;
         DataOutputStream os = null;
         // Only display the first 500 characters of the retrieved
@@ -130,17 +134,17 @@ public class RegistrationIntentService extends IntentService {
         String returnValue = "";
 
         try {
-            URL url = new URL(myurl);
+            URL url = new URL(myUrl);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
             conn.setDoOutput(true);
             conn.setDoInput(true);
             conn.setInstanceFollowRedirects(false);
-            conn.setRequestMethod("POST");URL:
+            conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             conn.setRequestProperty("charset", "utf-8");
             //conn.setRequestProperty("Content-Length", "" + Integer.toString(urlParameters.getBytes().length));
-            conn.setUseCaches (false);
+            conn.setUseCaches(false);
 
             conn.setReadTimeout(10000 /* milliseconds */);
             conn.setConnectTimeout(15000 /* milliseconds */);
@@ -151,7 +155,13 @@ public class RegistrationIntentService extends IntentService {
 
             //Create JSONObject here
             JSONObject jsonParam = new JSONObject();
+            jsonParam.put("command", command.toString());
             jsonParam.put("regId", regId);
+            if (command == ServerCommand.REGISTER)
+            {
+                jsonParam.put("polygon", polygon);
+                jsonParam.put("minMagnitude", minMagnitude);
+            }
             // Send POST output.
             os = new DataOutputStream(conn.getOutputStream ());
             os.write(URLEncoder.encode(jsonParam.toString()).getBytes("UTF-8"));
@@ -194,5 +204,24 @@ public class RegistrationIntentService extends IntentService {
             pubSub.subscribe(token, "/topics/" + topic, null);
         }
     }
+
+    private JSONObject loadPolygon(Context context)
+    {
+        JSONObject jsonObject = new JSONObject();
+        List<String> list = new ArrayList<>();
+        String preferenceName = context.getResources().getString(R.string.REGION_SHARED_PREF_NAME);
+        SharedPreferences sharedPref = context.getSharedPreferences(preferenceName, Context.MODE_PRIVATE);
+        String polygonListDefault = context.getResources().getString(R.string.preference_polygon_list_default);
+        String polygonList = sharedPref.getString(context.getString(R.string.preference_polygon_list), polygonListDefault);
+
+        try {
+             jsonObject = new JSONObject(polygonList);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return jsonObject;
+    };
 
 }
