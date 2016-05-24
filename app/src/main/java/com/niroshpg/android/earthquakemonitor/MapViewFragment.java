@@ -3,6 +3,7 @@ package com.niroshpg.android.earthquakemonitor;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -11,6 +12,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -55,10 +57,10 @@ import java.util.concurrent.BlockingQueue;
  * Fragment to show the map within the main activity view
  *
  * @author niroshpg
- * @since  06/10/2014
+ * @since 06/10/2014
  */
 public class MapViewFragment extends SupportMapFragment implements MainActivity.MarkerCallback,
-       LoaderManager.LoaderCallbacks<Cursor> {
+        LoaderManager.LoaderCallbacks<Cursor> {
 
     public static final String LOG_TAG = MapViewFragment.class.getSimpleName();
 
@@ -98,45 +100,41 @@ public class MapViewFragment extends SupportMapFragment implements MainActivity.
     private static final int DEFAULT_MAP_ZOOM = 2;
     private static final int QUAKES_LOADER = 1;
 
-    private static MapViewFragment mInstance ;
+    private static MapViewFragment mInstance;
     private SupportMapFragment mFragment;
     private String mTitle;
     private GoogleMap mMap;
     private boolean isMarkersLoaded = false;
     private int mMapZoom = DEFAULT_MAP_ZOOM;
-    private static boolean enableCursorLoader  = false;
+    private static boolean enableCursorLoader = false;
     private PolygonOptions rectOptions;
     private boolean allowMapToScroll = false;
     public BlockingQueue<LatLng> latLngBlockingQueue = new ArrayBlockingQueue<LatLng>(1024);
     private Polygon polygon;
-    ImageButton clearRegion;
+    //ImageButton clearRegion;
 
-    public static MapViewFragment getNewInstance()
-    {
+    public static MapViewFragment getNewInstance() {
         enableCursorLoader = true;
-        if(mInstance == null)
-        {
+        if (mInstance == null) {
             mInstance = new MapViewFragment();
         }
         mInstance.restartLoader();
         return mInstance;
     }
 
-    public static void clearInstance()
-    {
+    public static void clearInstance() {
         mInstance = null;
     }
 
 
-    public void loadData()
-    {
-        if(!isMarkersLoaded) {
+    public void loadData() {
+        if (!isMarkersLoaded) {
         }
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState){
-        super.onCreateView(inflater,container, savedInstanceState );
+                             Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
 
         View view = inflater.inflate(R.layout.fragment_map, container, false);
 
@@ -149,103 +147,103 @@ public class MapViewFragment extends SupportMapFragment implements MainActivity.
 //            }
 //        );
 
-        ImageButton markRegion = (ImageButton)view.findViewById(R.id.markRegionButton);
-        final ImageButton clearRegion = (ImageButton)view.findViewById(R.id.clearMarkedRegionButton);
+        //ImageButton markRegion = (ImageButton) view.findViewById(R.id.markRegionButton);
+       // final ImageButton clearRegion = (ImageButton) view.findViewById(R.id.clearMarkedRegionButton);
 
-        markRegion.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+//        markRegion.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//
+//                if (allowMapToScroll != true) {
+//                    allowMapToScroll = true;
+//                    clearRegion.setVisibility(View.VISIBLE);
+//                } else {
+//                    allowMapToScroll = false;
+//
+//                    clearRegion.setVisibility(View.GONE);
+//                }
+//            }
+//        });
+//
+//
+//        clearRegion.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                if (polygon != null) {
+//                    polygon.remove();
+//                    latLngBlockingQueue.clear();
+//                }
+//            }
+//        });
+//        FrameLayout parentLayout1 = (FrameLayout) view.findViewById(R.id.suport_map_overlay);
+//        parentLayout1.setOnTouchListener(new View.OnTouchListener() {
+//
+//
+//            public double longitude;
+//            public double latitude;
+//            public Projection projection;
+//
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                float x = event.getX();
+//                float y = event.getY();
+//
+//                int x_co = Math.round(x);
+//                int y_co = Math.round(y);
+//
+//                projection = mMap.getProjection();
+//                Point x_y_points = new Point(x_co, y_co);
+//
+//                LatLng latLng = mMap.getProjection().fromScreenLocation(x_y_points);
+//                latitude = latLng.latitude;
+//
+//                longitude = latLng.longitude;
+//
+//                int eventaction = event.getAction();
+//                switch (eventaction) {
+//                    case MotionEvent.ACTION_DOWN:
+//                        // finger touches the screen
+//                        latLngBlockingQueue.add(new LatLng(latitude, longitude));
+//                        break;
+//
+//                    case MotionEvent.ACTION_MOVE:
+//                        // finger moves on the screen
+//                        latLngBlockingQueue.add(new LatLng(latitude, longitude));
+//                        break;
+//
+//                    case MotionEvent.ACTION_UP:
+//                        // finger leaves the screen
+//                        Draw_Map();
+//
+//                        break;
+//                }
+//                if (allowMapToScroll == true) {
+//                    return true;
+//
+//                } else {
+//                    return false;
+//                }
+//            }
+//        });
+//
+//        Button register = (Button) view.findViewById(R.id.register);
+//        register.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                if (checkPlayServices()) {
+//
+//                    if (polygon != null) {
+//                        savePolygon(getActivity().getApplicationContext(), polygon.getPoints());
+//                    }
+//
+//                    // Start IntentService to register this application with GCM.
+//                    Intent intent = new Intent(getActivity(), RegistrationIntentService.class);
+//                    getActivity().startService(intent);
+//                }
+//            }
+//        });
 
-                if (allowMapToScroll != true) {
-                    allowMapToScroll = true;
-                    clearRegion.setVisibility(View.VISIBLE);
-                } else {
-                    allowMapToScroll = false;
-
-                    clearRegion.setVisibility(View.GONE);
-                }
-            }
-        });
-
-
-
-        clearRegion.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (polygon != null) {
-                    polygon.remove();
-                    latLngBlockingQueue.clear();
-                }
-            }
-        });
-        FrameLayout parentLayout1 = (FrameLayout)view.findViewById(R.id.suport_map_overlay);
-        parentLayout1.setOnTouchListener(new View.OnTouchListener() {
-
-
-            public double longitude;
-            public double latitude;
-            public Projection projection;
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    float x = event.getX();
-                    float y = event.getY();
-
-                    int x_co = Math.round(x);
-                    int y_co = Math.round(y);
-
-                    projection = mMap.getProjection();
-                    Point x_y_points = new Point(x_co, y_co);
-
-                    LatLng latLng = mMap.getProjection().fromScreenLocation(x_y_points);
-                    latitude = latLng.latitude;
-
-                    longitude = latLng.longitude;
-
-                    int eventaction = event.getAction();
-                    switch (eventaction) {
-                        case MotionEvent.ACTION_DOWN:
-                            // finger touches the screen
-                            latLngBlockingQueue.add(new LatLng(latitude, longitude));
-                            break;
-
-                        case MotionEvent.ACTION_MOVE:
-                            // finger moves on the screen
-                            latLngBlockingQueue.add(new LatLng(latitude, longitude));
-                            break;
-
-                        case MotionEvent.ACTION_UP:
-                            // finger leaves the screen
-                            Draw_Map();
-
-                            break;
-                    }
-                    if (allowMapToScroll == true) {
-                        return true;
-
-                    } else {
-                        return false;
-                    }
-                }
-        });
-
-        Button register = (Button)view.findViewById(R.id.register);
-        register.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (checkPlayServices()) {
-
-                    if(polygon!=null) {
-                        savePolygon(getActivity().getApplicationContext(), polygon.getPoints());
-                    }
-
-                    // Start IntentService to register this application with GCM.
-                    Intent intent = new Intent(getActivity(), RegistrationIntentService.class);
-                    getActivity().startService(intent);
-                }
-            }
-        });
-
-        RelativeLayout parentLayout = (RelativeLayout)view.findViewById(R.id.fragment_map_parent);
+        RelativeLayout parentLayout = (RelativeLayout) view.findViewById(R.id.fragment_map_parent);
         parentLayout.setOnTouchListener(new View.OnTouchListener() {
 
 
@@ -266,47 +264,43 @@ public class MapViewFragment extends SupportMapFragment implements MainActivity.
         return view;
     }
 
-    public void Draw_Map() {
-        rectOptions = new PolygonOptions();
-        List<LatLng> points = new ArrayList<>( );
-
-
-        points.addAll(latLngBlockingQueue);
-        double minLat = points.get(0).latitude;
-        double maxLat =  points.get(0).latitude;
-        double minLng =  points.get(0).longitude;
-        double maxLng =  points.get(0).longitude;
-
-        for (LatLng point : points)
-        {
-            if(point.latitude < minLat)    minLat = point.latitude;
-            if(point.latitude > maxLat)    maxLat = point.latitude;
-            if(point.longitude < minLng)    minLng = point.longitude;
-            if(point.longitude > maxLng)    maxLng = point.longitude;
-        }
-        LatLng p1 = new LatLng(minLat,minLng);
-        LatLng p2 = new LatLng(minLat,maxLng);
-        LatLng p3 = new LatLng(maxLat,maxLng);
-        LatLng p4 = new LatLng(maxLat,minLng);
-        rectOptions.add(p1);
-        rectOptions.add(p2);
-        rectOptions.add(p3);
-        rectOptions.add(p4);
-        rectOptions.add(p1);
-        //rectOptions.addAll(latLngBlockingQueue);
-        //rectOptions.add(rectOptions.getPoints().get(0));
-        rectOptions.strokeColor(Color.BLUE);
-        rectOptions.strokeWidth(7);
-        //rectOptions.fillColor(R.color.transparent);
-
-        if(polygon != null )
-        {
-            polygon.remove();
-        }
-        polygon = mMap.addPolygon(rectOptions);
-
-
-    }
+//    public void Draw_Map() {
+//        rectOptions = new PolygonOptions();
+//        List<LatLng> points = new ArrayList<>();
+//
+//
+//        points.addAll(latLngBlockingQueue);
+//        double minLat = points.get(0).latitude;
+//        double maxLat = points.get(0).latitude;
+//        double minLng = points.get(0).longitude;
+//        double maxLng = points.get(0).longitude;
+//
+//        for (LatLng point : points) {
+//            if (point.latitude < minLat) minLat = point.latitude;
+//            if (point.latitude > maxLat) maxLat = point.latitude;
+//            if (point.longitude < minLng) minLng = point.longitude;
+//            if (point.longitude > maxLng) maxLng = point.longitude;
+//        }
+//        LatLng p1 = new LatLng(minLat, minLng);
+//        LatLng p2 = new LatLng(minLat, maxLng);
+//        LatLng p3 = new LatLng(maxLat, maxLng);
+//        LatLng p4 = new LatLng(maxLat, minLng);
+//        rectOptions.add(p1);
+//        rectOptions.add(p2);
+//        rectOptions.add(p3);
+//        rectOptions.add(p4);
+//        rectOptions.add(p1);
+//        //rectOptions.addAll(latLngBlockingQueue);
+//        //rectOptions.add(rectOptions.getPoints().get(0));
+//        rectOptions.strokeColor(Color.BLUE);
+//        rectOptions.strokeWidth(7);
+//        //rectOptions.fillColor(R.color.transparent);
+//
+//        if (polygon != null) {
+//            polygon.remove();
+//        }
+//        polygon = mMap.addPolygon(rectOptions);
+//    }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -319,7 +313,7 @@ public class MapViewFragment extends SupportMapFragment implements MainActivity.
             fm.beginTransaction().replace(R.id.fragment_map_container, mFragment).commit();
         }
         setUpMapIfNeeded();
-        if(enableCursorLoader)
+        if (enableCursorLoader)
             getLoaderManager().initLoader(QUAKES_LOADER, null, this);
     }
 
@@ -359,13 +353,11 @@ public class MapViewFragment extends SupportMapFragment implements MainActivity.
                 getChildFragmentManager().beginTransaction().replace(R.id.fragment_map_container, mFragment).commit();
             }
             mMap = mFragment.getMap();
-            if(mMap != null)
-            {
+            if (mMap != null) {
                 setUpMap();
             }
         }
-        if(mMap != null)
-        {
+        if (mMap != null) {
             loadData();
         }
     }
@@ -379,6 +371,18 @@ public class MapViewFragment extends SupportMapFragment implements MainActivity.
     private void setUpMap() {
         mMap.getUiSettings().setAllGesturesEnabled(true);
         mMap.getUiSettings().setCompassEnabled(true);
+        if (ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(),
+                android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
         mMap.setMyLocationEnabled(true);
     }
 
