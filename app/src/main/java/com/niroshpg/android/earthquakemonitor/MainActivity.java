@@ -115,6 +115,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         }
 
         EarthQuakeSyncAdapter.initializeSyncAdapter(this);
+        EarthQuakeSyncAdapter.syncImmediately(this);
         mRegistrationBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {

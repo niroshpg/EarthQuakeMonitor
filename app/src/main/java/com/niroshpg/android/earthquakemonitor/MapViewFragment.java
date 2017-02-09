@@ -28,9 +28,12 @@ import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -112,6 +115,8 @@ public class MapViewFragment extends SupportMapFragment implements MainActivity.
     public BlockingQueue<LatLng> latLngBlockingQueue = new ArrayBlockingQueue<LatLng>(1024);
     private Polygon polygon;
     //ImageButton clearRegion;
+
+    private boolean isMapAvailable = false;
 
     public static MapViewFragment getNewInstance() {
         enableCursorLoader = true;
@@ -352,9 +357,19 @@ public class MapViewFragment extends SupportMapFragment implements MainActivity.
 
                 getChildFragmentManager().beginTransaction().replace(R.id.fragment_map_container, mFragment).commit();
             }
+            int statusCode =  MapsInitializer.initialize(getActivity().getApplicationContext());
+            mMap = mFragment.getMap();
+            ConnectionResult result = new ConnectionResult(statusCode);
+            String msg = ""+result.getErrorMessage();
+            Log.e(LOG_TAG,msg);
+            if(!result.isSuccess()) {
+                checkPlayServices();
+            }
+
             mMap = mFragment.getMap();
             if (mMap != null) {
                 setUpMap();
+                isMapAvailable = true;
             }
         }
         if (mMap != null) {
@@ -369,21 +384,27 @@ public class MapViewFragment extends SupportMapFragment implements MainActivity.
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
     private void setUpMap() {
-        mMap.getUiSettings().setAllGesturesEnabled(true);
-        mMap.getUiSettings().setCompassEnabled(true);
-        if (ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(),
-                android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-        mMap.setMyLocationEnabled(true);
+
+
+            mMap.getUiSettings().setAllGesturesEnabled(true);
+            mMap.getUiSettings().setCompassEnabled(true);
+            if (ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_FINE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(),
+                    android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return;
+            }
+            mMap.setMyLocationEnabled(true);
+
+
+
+
     }
 
     public String getTitle() {
@@ -392,6 +413,11 @@ public class MapViewFragment extends SupportMapFragment implements MainActivity.
 
     public void setTitle(String mTitle) {
         this.mTitle = mTitle;
+    }
+
+    private boolean isMapAvailable()
+    {
+        return isMapAvailable;
     }
 
     @Override
@@ -436,42 +462,43 @@ public class MapViewFragment extends SupportMapFragment implements MainActivity.
 
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        String sigKey = getActivity().getString(R.string.pref_sig_key);
+        if(isMapAvailable()) {
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            String sigKey = getActivity().getString(R.string.pref_sig_key);
 
-        String sigKeyString = prefs.getString(sigKey,
-                getActivity().getString(R.string.pref_sig_key));
-        int preferredSignificance = Utility.getSignificance(sigKeyString);
+            String sigKeyString = prefs.getString(sigKey,
+                    getActivity().getString(R.string.pref_sig_key));
+            int preferredSignificance = Utility.getSignificance(sigKeyString);
 
-        switch (cursorLoader.getId()) {
+            switch (cursorLoader.getId()) {
 
-            case QUAKES_LOADER:
-                if(mMap != null) {
-                    mMap.clear();
-                }
-                cursor.moveToFirst();
-               for(int i=0; i < cursor.getCount();i++,cursor.moveToNext())
-               {
-                   int significance = cursor.getInt(COL_QUAKE_SIG);
-                   if(significance >= preferredSignificance ) {
-                       double high = cursor.getDouble(COL_QUAKE_MAG);
-                       double low = cursor.getDouble(COL_QUAKE_DEPTH);
-                       double lng = cursor.getDouble(COL_QUAKE_LONG);
-                       double lat = cursor.getDouble(COL_QUAKE_LAT);
-                       MarkerOptions markerOptions = new MarkerOptions();
-                       LatLng latLng = new LatLng(lat,lng);
-                       markerOptions.position(latLng);
-                       markerOptions.title("Magnitude: " + String.valueOf(high) + " M") ;
-                       markerOptions.snippet("Depth: " + String.valueOf(low) + "km") ;
-                       int resourceId = Utility.getMarkerResourceForSignificance(significance);
-                       String alert = cursor.getString(COL_QUAKE_ALERT);
-                       Bitmap bitmap = Utility.addAlertData(getActivity(),resourceId,alert);
-                       markerOptions.icon(BitmapDescriptorFactory.fromBitmap(bitmap));
-                       mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, mMapZoom));
-                       mMap.addMarker(markerOptions);
-                   }
-               }
-                break;
+                case QUAKES_LOADER:
+                    if (mMap != null) {
+                        mMap.clear();
+                    }
+                    cursor.moveToFirst();
+                    for (int i = 0; i < cursor.getCount(); i++, cursor.moveToNext()) {
+                        int significance = cursor.getInt(COL_QUAKE_SIG);
+                        if (significance >= preferredSignificance) {
+                            double high = cursor.getDouble(COL_QUAKE_MAG);
+                            double low = cursor.getDouble(COL_QUAKE_DEPTH);
+                            double lng = cursor.getDouble(COL_QUAKE_LONG);
+                            double lat = cursor.getDouble(COL_QUAKE_LAT);
+                            MarkerOptions markerOptions = new MarkerOptions();
+                            LatLng latLng = new LatLng(lat, lng);
+                            markerOptions.position(latLng);
+                            markerOptions.title("Magnitude: " + String.valueOf(high) + " M");
+                            markerOptions.snippet("Depth: " + String.valueOf(low) + "km");
+                            int resourceId = Utility.getMarkerResourceForSignificance(significance);
+                            String alert = cursor.getString(COL_QUAKE_ALERT);
+                            Bitmap bitmap = Utility.addAlertData(getActivity(), resourceId, alert);
+                            markerOptions.icon(BitmapDescriptorFactory.fromBitmap(bitmap));
+                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, mMapZoom));
+                            mMap.addMarker(markerOptions);
+                        }
+                    }
+                    break;
+            }
         }
     }
 
@@ -550,17 +577,21 @@ public class MapViewFragment extends SupportMapFragment implements MainActivity.
      * the Google Play Store or enable it in the device's system settings.
      */
     private boolean checkPlayServices() {
-        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getActivity());
-        if (resultCode != ConnectionResult.SUCCESS) {
-            if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
-                GooglePlayServicesUtil.getErrorDialog(resultCode, getActivity(),
-                        PLAY_SERVICES_RESOLUTION_REQUEST).show();
-            } else {
+        GoogleApiAvailability googleAPI = GoogleApiAvailability.getInstance();
+        int result = googleAPI.isGooglePlayServicesAvailable(getActivity());
+        if(result != ConnectionResult.SUCCESS) {
+            if(googleAPI.isUserResolvableError(result)) {
+               // googleAPI.getErrorDialog(getActivity(), result,
+                //        PLAY_SERVICES_RESOLUTION_REQUEST).show();
+            }
+            else {
                 Log.i(LOG_TAG, "This device is not supported.");
                 getActivity().finish();
             }
+
             return false;
         }
+
         return true;
     }
 

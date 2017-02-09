@@ -11,6 +11,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -194,7 +195,12 @@ public class MapViewDetailFragment extends SupportMapFragment implements LoaderM
     private void setUpMap() {
         mMap.getUiSettings().setAllGesturesEnabled(true);
         mMap.getUiSettings().setCompassEnabled(true);
-        mMap.setMyLocationEnabled(true);
+        try {
+            mMap.setMyLocationEnabled(true);
+        }
+        catch (SecurityException e){
+            Log.e(LOG_TAG,e.getLocalizedMessage());
+        }
     }
 
     @Override

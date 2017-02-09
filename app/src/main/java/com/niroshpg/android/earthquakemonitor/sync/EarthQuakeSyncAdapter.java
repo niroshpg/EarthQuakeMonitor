@@ -188,17 +188,17 @@ public class EarthQuakeSyncAdapter extends AbstractThreadedSyncAdapter {
 
             for(int i = 0; i < featuresArray.length(); i++) {
                 // These are the values that will be collected.
-                Double mag;
-                String place;
-                Long time;
-                Long updated;
-                int timezone;
-                Double latitude;
-                Double longitude;
-                Double depth;
-                String alert;
-                int sig;
-                String url;
+                Double mag=0.0;
+                String place="";
+                Long time=null;
+                Long updated=null;
+                int timezone=0;
+                Double latitude=null;
+                Double longitude=null;
+                Double depth=null;
+                String alert="";
+                int sig=0;
+                String url="";
 
                 JSONObject eqEvent = featuresArray.getJSONObject(i);
                 JSONObject eqProperties = eqEvent.getJSONObject(USGS_FEATURE_PROPERTIES);
@@ -206,7 +206,23 @@ public class EarthQuakeSyncAdapter extends AbstractThreadedSyncAdapter {
                 alert = eqProperties.getString(USGS_FEATURE_PROPERTIES_ALERT);
                 place = eqProperties.getString(USGS_FEATURE_PROPERTIES_PLACE);
                 time = eqProperties.getLong(USGS_FEATURE_PROPERTIES_TIME);
-                timezone = eqProperties.getInt(USGS_FEATURE_PROPERTIES_TZ);
+
+                if(eqProperties.has(USGS_FEATURE_PROPERTIES_TZ))
+                {
+                    if(!eqProperties.isNull(USGS_FEATURE_PROPERTIES_TZ))
+                    {
+                        timezone = eqProperties.getInt(USGS_FEATURE_PROPERTIES_TZ);
+                    }
+                    else
+                    {
+                        Log.d(LOG_TAG, "could not read timezone ");
+                    }
+
+                }
+                else
+                {
+                    Log.d(LOG_TAG, "could not read timezone ");
+                }
                 sig = eqProperties.getInt(USGS_FEATURE_PROPERTIES_SIG);
                 updated = eqProperties.getLong(USGS_FEATURE_PROPERTIES_UPDATED);
                 url = eqProperties.getString(USGS_FEATURE_PROPERTIES_URL);
@@ -303,8 +319,8 @@ public class EarthQuakeSyncAdapter extends AbstractThreadedSyncAdapter {
                     // Define the text of the event.
                     String contentText = String.format(context.getString(R.string.format_notification),
                             place,
-                            mag,
-                            depth);
+                            String.valueOf(mag),
+                            String.valueOf(depth));
 
                     NotificationCompat.Builder mBuilder =
                             new NotificationCompat.Builder(getContext())
