@@ -26,9 +26,8 @@ import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.google.android.gms.gcm.GcmPubSub;
-import com.google.android.gms.gcm.GoogleCloudMessaging;
-import com.google.android.gms.iid.InstanceID;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.niroshpg.android.earthquakemonitor.MainActivity;
 import com.niroshpg.android.earthquakemonitor.R;
 
@@ -69,9 +68,10 @@ public class RegistrationIntentService extends IntentService {
                 // Initially this call goes out to the network to retrieve the token, subsequent calls
                 // are local.
                 // [START get_token]
-                InstanceID instanceID = InstanceID.getInstance(this);
-                String token = instanceID.getToken(getString(R.string.gcm_sender_id),
-                        GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
+//                InstanceID instanceID = InstanceID.getInstance(this);
+//                String token = instanceID.getToken(getString(R.string.gcm_sender_id),
+//                        GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
+                String token = FirebaseInstanceId.getInstance().getToken();
                 // [END get_token]
                 Log.i(TAG, "GCM Registration Token: " + token);
 
@@ -200,8 +200,7 @@ public class RegistrationIntentService extends IntentService {
     // [START subscribe_topics]
     private void subscribeTopics(String token) throws IOException {
         for (String topic : TOPICS) {
-            GcmPubSub pubSub = GcmPubSub.getInstance(this);
-            pubSub.subscribe(token, "/topics/" + topic, null);
+            FirebaseMessaging.getInstance().subscribeToTopic(topic);
         }
     }
 

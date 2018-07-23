@@ -21,37 +21,37 @@
 
     </FrameLayout>
 
-    <ImageButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/markRegionButton"
-        android:src="@drawable/mark_region"
-        android:background="@android:color/transparent"
-        android:scaleType="fitXY"
-        android:minHeight="64dp"
-        android:minWidth="64dp" />
+    <!--<ImageButton-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:id="@+id/markRegionButton"-->
+        <!--android:src="@drawable/mark_region"-->
+        <!--android:background="@android:color/transparent"-->
+        <!--android:scaleType="fitXY"-->
+        <!--android:minHeight="64dp"-->
+        <!--android:minWidth="64dp" />-->
 
-    <ImageButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/clearMarkedRegionButton"
-        android:layout_gravity="center_horizontal|top"
-        android:layout_toRightOf="@+id/markRegionButton"
-        android:minHeight="64dp"
-        android:minWidth="64dp"
-        android:src="@android:drawable/ic_menu_close_clear_cancel"
-        android:scaleType="fitXY"
-        android:background="@android:color/transparent"
-        android:tint="#9c110e"
-        android:visibility="gone" />
+    <!--<ImageButton-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:id="@+id/clearMarkedRegionButton"-->
+        <!--android:layout_gravity="center_horizontal|top"-->
+        <!--android:layout_toRightOf="@+id/markRegionButton"-->
+        <!--android:minHeight="64dp"-->
+        <!--android:minWidth="64dp"-->
+        <!--android:src="@android:drawable/ic_menu_close_clear_cancel"-->
+        <!--android:scaleType="fitXY"-->
+        <!--android:background="@android:color/transparent"-->
+        <!--android:tint="#9c110e"-->
+        <!--android:visibility="gone" />-->
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Register"
-        android:id="@+id/register"
-        android:layout_gravity="center_horizontal|bottom"
-        android:layout_alignBottom="@+id/suport_map_overlay"
-        android:layout_centerHorizontal="true" />
+    <!--<Button-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="Register"-->
+        <!--android:id="@+id/register"-->
+        <!--android:layout_gravity="center_horizontal|bottom"-->
+        <!--android:layout_alignBottom="@+id/suport_map_overlay"-->
+        <!--android:layout_centerHorizontal="true" />-->
 
 </RelativeLayout>

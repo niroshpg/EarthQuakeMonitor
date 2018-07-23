@@ -1,12 +1,15 @@
 package com.niroshpg.android.earthquakemonitor;
 
+import android.Manifest;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -18,22 +21,25 @@ import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.niroshpg.android.earthquakemonitor.data.EarthQuakeDataContract;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.TimeZone;
 
 /**
  * Fragment to show the map within the detail activity view
  *
  * @author niroshpg
- * @since  06/10/2014
+ * @since 06/10/2014
  */
 
-public class MapViewDetailFragment extends SupportMapFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class MapViewDetailFragment extends SupportMapFragment implements LoaderManager.LoaderCallbacks<Cursor>, OnMapReadyCallback {
 
     public static final String LOG_TAG = MapViewFragment.class.getSimpleName();
 
@@ -74,11 +80,26 @@ public class MapViewDetailFragment extends SupportMapFragment implements LoaderM
     private TextView mFriendlyDateView;
     private TextView mPlaceView;
 
-    private  int mMapZoom = DEFAULT_MAP_ZOOM;
+    private int mMapZoom = DEFAULT_MAP_ZOOM;
+    private List<MarkerOptions> markerOptionsList = new ArrayList<MarkerOptions>();
+
+    /**
+     * invoke when map is ready load markers etc
+     */
+
+    public void loadData() {
+        if(markerOptionsList.size()>0 && mMap !=null){
+            for(MarkerOptions markerOptions : markerOptionsList){
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(markerOptions.getPosition(), mMapZoom));
+                mMap.addMarker(markerOptions);
+            }
+            markerOptionsList.clear();
+        }
+    }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState){
-        super.onCreateView(inflater,container, savedInstanceState );
+                             Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
         View view = inflater.inflate(R.layout.fragment_map, container, false);
 
         View parentView = getParentFragment().getView();
@@ -105,7 +126,12 @@ public class MapViewDetailFragment extends SupportMapFragment implements LoaderM
 
             fm.beginTransaction().replace(R.id.fragment_map_container, mFragment).commit();
         }
-        mMap = mFragment.getMap();
+        mFragment.getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(GoogleMap googleMap) {
+                mMap = googleMap;
+            }
+        });
 
 
 //        ((SupportMapFragment)mFragment).setOnDragListener(new MapWrapperLayout.OnDragListener() {               @Override
@@ -132,7 +158,7 @@ public class MapViewDetailFragment extends SupportMapFragment implements LoaderM
 //        }
 //        });
         setUpMapIfNeeded();
-        if(mIdStr != null) {
+        if (mIdStr != null) {
             getLoaderManager().initLoader(QUAKES_LOADER, null, this);
         }
     }
@@ -169,6 +195,7 @@ public class MapViewDetailFragment extends SupportMapFragment implements LoaderM
      * stopped or paused), {@link #onCreate(Bundle)} may not be called again so we should call this
      * method in {@link #onResume()} to guarantee that it will be called.
      */
+
     private void setUpMapIfNeeded() {
         if (mMap == null) {
             mFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.fragment_map_container);
@@ -177,12 +204,21 @@ public class MapViewDetailFragment extends SupportMapFragment implements LoaderM
 
                 getChildFragmentManager().beginTransaction().replace(R.id.fragment_map_container, mFragment).commit();
             }
-            mMap = mFragment.getMap();
-            if(mMap != null)
-            {
-                setUpMap();
-            }
+            mFragment.getMapAsync(this);
+
         }
+
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+
+        if (googleMap != null) {
+            mMap = googleMap;
+            setUpMap();
+            loadData();
+        }
+
     }
 
     /**
@@ -194,6 +230,16 @@ public class MapViewDetailFragment extends SupportMapFragment implements LoaderM
     private void setUpMap() {
         mMap.getUiSettings().setAllGesturesEnabled(true);
         mMap.getUiSettings().setCompassEnabled(true);
+        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
         mMap.setMyLocationEnabled(true);
     }
 
@@ -247,7 +293,13 @@ public class MapViewDetailFragment extends SupportMapFragment implements LoaderM
         switch (cursorLoader.getId()) {
 
             case QUAKES_LOADER:
-                mMap.clear();
+                if(mMap != null) {
+                    mMap.clear();
+                }
+                else{
+                    markerOptionsList.clear();
+                }
+
                 cursor.moveToFirst();
 
                 if (cursor != null && cursor.moveToFirst()) {
@@ -281,8 +333,16 @@ public class MapViewDetailFragment extends SupportMapFragment implements LoaderM
                             int resourceId = Utility.getMarkerResourceForSignificance(significance);
                             Bitmap bitmap = Utility.addAlertData(getActivity(),resourceId,alert);
                             markerOptions.icon(BitmapDescriptorFactory.fromBitmap(bitmap));
-                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, mMapZoom));
-                            mMap.addMarker(markerOptions);
+
+
+                            if(mMap !=null){
+                                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, mMapZoom));
+                                mMap.addMarker(markerOptions);
+                            }
+                            else{
+                                markerOptionsList.add(markerOptions);
+                            }
+
                         }
                     }
                 }

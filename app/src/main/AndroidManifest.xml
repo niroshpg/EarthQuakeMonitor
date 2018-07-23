@@ -71,6 +71,9 @@
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="@string/google_maps_key" />
 
+        <meta-data android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
 
         <!-- [START gcm_receiver] -->
         <receiver
@@ -87,18 +90,19 @@
         <!-- [START gcm_listener] -->
         <service
             android:name="com.niroshpg.android.earthquakemonitor.push.MyGcmListenerService"
-            android:exported="false" >
+           >
             <intent-filter>
-                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
         <!-- [END gcm_listener] -->
         <!-- [START instanceId_listener] -->
+
         <service
             android:name="com.niroshpg.android.earthquakemonitor.push.MyInstanceIDListenerService"
-            android:exported="false">
+            >
             <intent-filter>
-                <action android:name="com.google.android.gms.iid.InstanceID"/>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
         <!-- [END instanceId_listener] -->
@@ -125,14 +129,4 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
 
-   <!--
-        Permissions for GCM
-   -->
-    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" /> <!-- optional -->
-    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
-
-    <permission android:name="com.niroshpg.android.earthquakemonitor.permission.C2D_MESSAGE"
-        android:protectionLevel="signature" />
-    <uses-permission android:name="com.niroshpg.android.earthquakemonitor.permission.C2D_MESSAGE" />
 </manifest>

@@ -14,7 +14,8 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -30,7 +31,7 @@ import com.niroshpg.android.earthquakemonitor.sync.EarthQuakeSyncAdapter;
  * @author niroshpg
  * @since  06/10/2014
  */
-public class MainActivity extends ActionBarActivity implements ActionBar.TabListener ,
+public class MainActivity extends AppCompatActivity implements ActionBar.TabListener ,
          ListViewFragment.Callback {
 
 
@@ -75,63 +76,70 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
         // Create the adapter that will return a fragment for each of the three primary sections
         // of the app.
-        mAppSectionsPagerAdapter = new AppSectionsPagerAdapter(getSupportFragmentManager());
+        if(getSupportFragmentManager()!=null){
+            mAppSectionsPagerAdapter = new AppSectionsPagerAdapter(getSupportFragmentManager());
+            // Set up the action bar.
+            final ActionBar actionBar = this.getSupportActionBar();
 
-        // Set up the action bar.
-        final ActionBar actionBar = this.getSupportActionBar();
+            // Specify that the Home/Up button should not be enabled, since there is no hierarchical
+            // parent.
+            actionBar.setHomeButtonEnabled(false);
 
-        // Specify that the Home/Up button should not be enabled, since there is no hierarchical
-        // parent.
-        actionBar.setHomeButtonEnabled(false);
+            // Specify that we will be displaying tabs in the action bar.
+            actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
-        // Specify that we will be displaying tabs in the action bar.
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+            // Set up the ViewPager, attaching the adapter and setting up a listener for when the
+            // user swipes between sections.
+            mViewPager = (ViewPager) findViewById(R.id.pager);
+            mViewPager.setAdapter(mAppSectionsPagerAdapter);
+            mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+                @Override
+                public void onPageSelected(int position) {
+                    // When swiping between different app sections, select the corresponding tab.
+                    // We can also use ActionBar.Tab#select() to do this if we have a reference to the
+                    // Tab.
+                    actionBar.setSelectedNavigationItem(position);
+                }
+            });
 
-        // Set up the ViewPager, attaching the adapter and setting up a listener for when the
-        // user swipes between sections.
-        mViewPager = (ViewPager) findViewById(R.id.pager);
-        mViewPager.setAdapter(mAppSectionsPagerAdapter);
-        mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-            @Override
-            public void onPageSelected(int position) {
-                // When swiping between different app sections, select the corresponding tab.
-                // We can also use ActionBar.Tab#select() to do this if we have a reference to the
-                // Tab.
-                actionBar.setSelectedNavigationItem(position);
+            //mViewPager.setBackgroundColor(Color.BLUE);
+            // For each of the sections in the app, add a tab to the action bar.
+            for (int i = 0; i < mAppSectionsPagerAdapter.getCount(); i++) {
+                // Create a tab with text corresponding to the page title defined by the adapter.
+                // Also specify this Activity object, which implements the TabListener interface, as the
+                // listener for when this tab is selected.
+                actionBar.addTab(
+                        actionBar.newTab()
+                                .setText(mAppSectionsPagerAdapter.getPageTitle(i))
+                                .setIcon(mAppSectionsPagerAdapter.getPageIcon(i))
+                                .setTabListener(this));
             }
-        });
 
-        //mViewPager.setBackgroundColor(Color.BLUE);
-        // For each of the sections in the app, add a tab to the action bar.
-        for (int i = 0; i < mAppSectionsPagerAdapter.getCount(); i++) {
-            // Create a tab with text corresponding to the page title defined by the adapter.
-            // Also specify this Activity object, which implements the TabListener interface, as the
-            // listener for when this tab is selected.
-            actionBar.addTab(
-                    actionBar.newTab()
-                            .setText(mAppSectionsPagerAdapter.getPageTitle(i))
-                            .setIcon(mAppSectionsPagerAdapter.getPageIcon(i))
-                            .setTabListener(this));
+            EarthQuakeSyncAdapter.initializeSyncAdapter(this);
+            mRegistrationBroadcastReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    // mRegistrationProgressBar.setVisibility(ProgressBar.GONE);
+                    SharedPreferences sharedPreferences =
+                            PreferenceManager.getDefaultSharedPreferences(context);
+                    boolean sentToken = sharedPreferences
+                            .getBoolean(QuickstartPreferences.SENT_TOKEN_TO_SERVER, false);
+                    if (sentToken) {
+                        // mInformationTextView.setText(getString(R.string.gcm_send_message));
+                        Toast.makeText(context,"token send to server", Toast.LENGTH_LONG);
+                    } else {
+                        // mInformationTextView.setText(getString(R.string.token_error_message));
+                        Toast.makeText(context,"error sending token to server", Toast.LENGTH_LONG);
+                    }
+                }
+            };
+        }
+        else {
+            Log.e(TAG, "map fragment is null");
         }
 
-        EarthQuakeSyncAdapter.initializeSyncAdapter(this);
-        mRegistrationBroadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-               // mRegistrationProgressBar.setVisibility(ProgressBar.GONE);
-                SharedPreferences sharedPreferences =
-                        PreferenceManager.getDefaultSharedPreferences(context);
-                boolean sentToken = sharedPreferences
-                        .getBoolean(QuickstartPreferences.SENT_TOKEN_TO_SERVER, false);
-                if (sentToken) {
-                   // mInformationTextView.setText(getString(R.string.gcm_send_message));
-                    Toast.makeText(context,"token send to server", Toast.LENGTH_LONG);
-                } else {
-                   // mInformationTextView.setText(getString(R.string.token_error_message));
-                    Toast.makeText(context,"error sending token to server", Toast.LENGTH_LONG);
-                }
-            }
-        };
+
+
 
     }
 

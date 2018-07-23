@@ -2,7 +2,7 @@ package com.niroshpg.android.earthquakemonitor;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -13,7 +13,7 @@ import android.view.MenuItem;
  * @since  06/10/2014
  */
 
-public class DetailActivity extends ActionBarActivity {
+public class DetailActivity extends AppCompatActivity {
 
     public static final String DATE_KEY = "list_view_date";
     public static final String ID_KEY = "list_view_id";

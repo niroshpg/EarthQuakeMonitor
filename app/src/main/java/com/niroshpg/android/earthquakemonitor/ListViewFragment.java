@@ -23,6 +23,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.niroshpg.android.earthquakemonitor.data.EarthQuakeDataContract;
 import com.niroshpg.android.earthquakemonitor.data.EarthQuakeDataContract.QuakesEntry;
@@ -374,10 +375,17 @@ public class ListViewFragment extends Fragment implements LoaderManager.LoaderCa
             if(fragments != null && fragments.size() >0) {
                 for (Fragment fr : fragments) {
                     if (fr != null && fr instanceof MapViewFragment) {
-                        GoogleMap googleMap = ((MapViewFragment) fr).getMap();
-                        if (googleMap != null) {
-                            googleMap.clear();
-                        }
+
+                                ((MapViewFragment) fr).getMapAsync(new OnMapReadyCallback() {
+                            @Override
+                            public void onMapReady(GoogleMap googleMap) {
+                                if (googleMap != null) {
+                                    googleMap.clear();
+                                }
+                            }
+                        });
+
+
                     }
                 }
             }

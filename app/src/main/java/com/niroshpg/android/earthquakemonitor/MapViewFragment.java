@@ -1,8 +1,10 @@
 package com.niroshpg.android.earthquakemonitor;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -11,6 +13,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -29,6 +32,8 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -55,10 +60,10 @@ import java.util.concurrent.BlockingQueue;
  * Fragment to show the map within the main activity view
  *
  * @author niroshpg
- * @since  06/10/2014
+ * @since 06/10/2014
  */
 public class MapViewFragment extends SupportMapFragment implements MainActivity.MarkerCallback,
-       LoaderManager.LoaderCallbacks<Cursor> {
+        LoaderManager.LoaderCallbacks<Cursor> {
 
     public static final String LOG_TAG = MapViewFragment.class.getSimpleName();
 
@@ -98,45 +103,52 @@ public class MapViewFragment extends SupportMapFragment implements MainActivity.
     private static final int DEFAULT_MAP_ZOOM = 2;
     private static final int QUAKES_LOADER = 1;
 
-    private static MapViewFragment mInstance ;
+    private static MapViewFragment mInstance;
     private SupportMapFragment mFragment;
     private String mTitle;
     private GoogleMap mMap;
     private boolean isMarkersLoaded = false;
     private int mMapZoom = DEFAULT_MAP_ZOOM;
-    private static boolean enableCursorLoader  = false;
+    private static boolean enableCursorLoader = false;
     private PolygonOptions rectOptions;
     private boolean allowMapToScroll = false;
     public BlockingQueue<LatLng> latLngBlockingQueue = new ArrayBlockingQueue<LatLng>(1024);
     private Polygon polygon;
     ImageButton clearRegion;
+    private MapView mMapView;
+    private List<MarkerOptions> markerOptionsList = new ArrayList<MarkerOptions>();
 
-    public static MapViewFragment getNewInstance()
-    {
+    public static MapViewFragment getNewInstance() {
         enableCursorLoader = true;
-        if(mInstance == null)
-        {
+        if (mInstance == null) {
             mInstance = new MapViewFragment();
         }
         mInstance.restartLoader();
+        mInstance.setArguments(new Bundle());
         return mInstance;
     }
 
-    public static void clearInstance()
-    {
+    public static void clearInstance() {
         mInstance = null;
     }
 
 
-    public void loadData()
-    {
-        if(!isMarkersLoaded) {
-        }
+    /**
+     * invoke when map is ready load markers etc
+     */
+    public void loadData() {
+       if(markerOptionsList.size()>0 && mMap !=null){
+           for(MarkerOptions markerOptions : markerOptionsList){
+               mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(markerOptions.getPosition(), mMapZoom));
+               mMap.addMarker(markerOptions);
+           }
+           markerOptionsList.clear();
+       }
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState){
-        super.onCreateView(inflater,container, savedInstanceState );
+                             Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
 
         View view = inflater.inflate(R.layout.fragment_map, container, false);
 
@@ -148,7 +160,7 @@ public class MapViewFragment extends SupportMapFragment implements MainActivity.
 //                }
 //            }
 //        );
-
+/*
         ImageButton markRegion = (ImageButton)view.findViewById(R.id.markRegionButton);
         final ImageButton clearRegion = (ImageButton)view.findViewById(R.id.clearMarkedRegionButton);
 
@@ -261,6 +273,7 @@ public class MapViewFragment extends SupportMapFragment implements MainActivity.
                 }
             }
         });
+        */
 
         setUpMapIfNeeded();
         return view;
@@ -268,26 +281,25 @@ public class MapViewFragment extends SupportMapFragment implements MainActivity.
 
     public void Draw_Map() {
         rectOptions = new PolygonOptions();
-        List<LatLng> points = new ArrayList<>( );
+        List<LatLng> points = new ArrayList<>();
 
 
         points.addAll(latLngBlockingQueue);
         double minLat = points.get(0).latitude;
-        double maxLat =  points.get(0).latitude;
-        double minLng =  points.get(0).longitude;
-        double maxLng =  points.get(0).longitude;
+        double maxLat = points.get(0).latitude;
+        double minLng = points.get(0).longitude;
+        double maxLng = points.get(0).longitude;
 
-        for (LatLng point : points)
-        {
-            if(point.latitude < minLat)    minLat = point.latitude;
-            if(point.latitude > maxLat)    maxLat = point.latitude;
-            if(point.longitude < minLng)    minLng = point.longitude;
-            if(point.longitude > maxLng)    maxLng = point.longitude;
+        for (LatLng point : points) {
+            if (point.latitude < minLat) minLat = point.latitude;
+            if (point.latitude > maxLat) maxLat = point.latitude;
+            if (point.longitude < minLng) minLng = point.longitude;
+            if (point.longitude > maxLng) maxLng = point.longitude;
         }
-        LatLng p1 = new LatLng(minLat,minLng);
-        LatLng p2 = new LatLng(minLat,maxLng);
-        LatLng p3 = new LatLng(maxLat,maxLng);
-        LatLng p4 = new LatLng(maxLat,minLng);
+        LatLng p1 = new LatLng(minLat, minLng);
+        LatLng p2 = new LatLng(minLat, maxLng);
+        LatLng p3 = new LatLng(maxLat, maxLng);
+        LatLng p4 = new LatLng(maxLat, minLng);
         rectOptions.add(p1);
         rectOptions.add(p2);
         rectOptions.add(p3);
@@ -299,8 +311,7 @@ public class MapViewFragment extends SupportMapFragment implements MainActivity.
         rectOptions.strokeWidth(7);
         //rectOptions.fillColor(R.color.transparent);
 
-        if(polygon != null )
-        {
+        if (polygon != null) {
             polygon.remove();
         }
         polygon = mMap.addPolygon(rectOptions);
@@ -319,7 +330,7 @@ public class MapViewFragment extends SupportMapFragment implements MainActivity.
             fm.beginTransaction().replace(R.id.fragment_map_container, mFragment).commit();
         }
         setUpMapIfNeeded();
-        if(enableCursorLoader)
+        if (enableCursorLoader)
             getLoaderManager().initLoader(QUAKES_LOADER, null, this);
     }
 
@@ -358,17 +369,25 @@ public class MapViewFragment extends SupportMapFragment implements MainActivity.
 
                 getChildFragmentManager().beginTransaction().replace(R.id.fragment_map_container, mFragment).commit();
             }
-            mMap = mFragment.getMap();
-            if(mMap != null)
-            {
-                setUpMap();
-            }
+            mFragment.getMapAsync(new OnMapReadyCallback() {
+
+                @Override
+                public void onMapReady(GoogleMap googleMap) {
+                    if (googleMap != null) {
+                        mMap = googleMap;
+                        setUpMap();
+                        loadData();
+                    }
+                }
+            });
+
         }
-        if(mMap != null)
-        {
-            loadData();
-        }
+
     }
+
+
+
+
 
     /**
      * This is where we can add markers or lines, add listeners or move the camera. In this case, we
@@ -379,6 +398,16 @@ public class MapViewFragment extends SupportMapFragment implements MainActivity.
     private void setUpMap() {
         mMap.getUiSettings().setAllGesturesEnabled(true);
         mMap.getUiSettings().setCompassEnabled(true);
+        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
         mMap.setMyLocationEnabled(true);
     }
 
@@ -445,7 +474,11 @@ public class MapViewFragment extends SupportMapFragment implements MainActivity.
                 if(mMap != null) {
                     mMap.clear();
                 }
+                else{
+                    markerOptionsList.clear();
+                }
                 cursor.moveToFirst();
+
                for(int i=0; i < cursor.getCount();i++,cursor.moveToNext())
                {
                    int significance = cursor.getInt(COL_QUAKE_SIG);
@@ -463,13 +496,60 @@ public class MapViewFragment extends SupportMapFragment implements MainActivity.
                        String alert = cursor.getString(COL_QUAKE_ALERT);
                        Bitmap bitmap = Utility.addAlertData(getActivity(),resourceId,alert);
                        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(bitmap));
-                       mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, mMapZoom));
-                       mMap.addMarker(markerOptions);
+
+
+                       if(mMap !=null){
+                          mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, mMapZoom));
+                          mMap.addMarker(markerOptions);
+                      }
+                      else{
+                           markerOptionsList.add(markerOptions);
+                       }
+
                    }
                }
                 break;
         }
     }
+//    public void onSaveInstanceState(Bundle outState){
+//        //This MUST be done before saving any of your own or your base class's variables
+//        final Bundle mapViewSaveState = new Bundle(outState);
+//        mFragment.onSaveInstanceState(mapViewSaveState);
+//        outState.putBundle("mapViewSaveState", mapViewSaveState);
+//        //Add any other variables here.
+//        super.onSaveInstanceState(outState);
+//    }
+//
+//    public void onCreate(Bundle savedInstanceState){
+//        super.onCreate(savedInstanceState);
+//        final Bundle mapViewSavedInstanceState = savedInstanceState != null ? savedInstanceState.getBundle("mapViewSaveState") : null;
+//        mFragment.onCreate(mapViewSavedInstanceState);
+//        //....
+//    }
+//
+//    @Override
+//    public void onSaveInstanceState(Bundle outState) {
+//        super.onSaveInstanceState(outState);
+//        mMapView.onSaveInstanceState(outState);
+//
+//        /* I'm using Serializable, but you can use whatever you want */
+//        //getArguments().putSerializable("yourfield", yourValue);
+//    }
+
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+    }
+
+//    @Override
+//    public void onCreate(Bundle savedState) {
+//        super.onCreate(savedState);
+//
+//        mMapView.onCreate(savedState);
+//
+////        if(savedState != null) {
+////            yourValue = getArguments.getSerializable("yourField");
+////        }
+//    }
 
     @Override
     public void onLoaderReset(Loader<Cursor> cursorLoader) {

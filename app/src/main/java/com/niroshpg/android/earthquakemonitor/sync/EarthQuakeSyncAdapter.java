@@ -57,7 +57,7 @@ import java.util.Vector;
 public class EarthQuakeSyncAdapter extends AbstractThreadedSyncAdapter {
     public final String LOG_TAG = EarthQuakeSyncAdapter.class.getSimpleName();
     final String EQ_BASE_URL =
-            "http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/";
+            "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/";
 
     // Interval at which to sync with the earthquake data from server, in seconds.
     // 60 seconds (1 minute) * 180 = 3 hours
@@ -122,7 +122,7 @@ public class EarthQuakeSyncAdapter extends AbstractThreadedSyncAdapter {
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
             urlConnection.connect();
-
+            Log.i("Response Code" , String.valueOf(urlConnection.getResponseCode()));
             // Read the input stream into a String
             InputStream inputStream = urlConnection.getInputStream();
             StringBuffer buffer = new StringBuffer();
