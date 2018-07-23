@@ -384,10 +384,7 @@ public class MapViewFragment extends SupportMapFragment implements MainActivity.
         }
 
     }
-
-
-
-
+    
 
     /**
      * This is where we can add markers or lines, add listeners or move the camera. In this case, we
